@@ -282,13 +282,13 @@
             return (
                 <>
                     {screen === 'card-details' && <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} />}
-                    {screen === 'enter-topup-amount' && <EnterTopUpAmountScreen config={config} cardBalance={cardBalance} topUpAmount={topUpAmount} setTopUpAmount={setTopUpAmount} error={error} setError={setError} onNext={handleTopUpAmountNext} onBack={resetFlow} />}
-                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} />}
-                    {screen === 'payment-details' && <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} paymentMethod={selectedPaymentMethod} />}
-                    {screen === 'payment-processing' && <PaymentProcessingScreen />}
-                    {screen === 'payment-success' && <PaymentSuccessScreen amount={topUpAmount} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} />}
-                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} />}
+                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'enter-topup-amount' && <EnterTopUpAmountScreen config={config} cardBalance={cardBalance} topUpAmount={topUpAmount} setTopUpAmount={setTopUpAmount} error={error} setError={setError} onNext={handleTopUpAmountNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'enter-topup-amount' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-details' && <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-processing' && <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-success' && <PaymentSuccessScreen amount={topUpAmount} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
                 </>
             );
         }
@@ -388,13 +388,13 @@
             return (
                 <>
                     {screen === 'card-details' && <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} />}
-                    {screen === 'select-denomination' && <SelectDenominationScreen config={config} cardBalance={cardBalance} selectedDenomination={selectedDenomination} onSelect={handleDenominationSelect} error={error} onNext={handleDenominationNext} onBack={resetFlow} />}
-                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} />}
-                    {screen === 'payment-details' && <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} paymentMethod={selectedPaymentMethod} />}
-                    {screen === 'payment-processing' && <PaymentProcessingScreen />}
-                    {screen === 'payment-success' && <PaymentSuccessScreenFixed amount={selectedDenomination} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} />}
-                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} />}
+                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'select-denomination' && <SelectDenominationScreen config={config} cardBalance={cardBalance} selectedDenomination={selectedDenomination} onSelect={handleDenominationSelect} error={error} onNext={handleDenominationNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'select-denomination' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-details' && <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-processing' && <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'payment-success' && <PaymentSuccessScreenFixed amount={selectedDenomination} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />}
+                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
                 </>
             );
         }
@@ -411,15 +411,7 @@
             );
         }
 
-        function MenuItem({ text, last }) {
-            return (
-                <div className="flex items-center px-6 py-3" style={{borderBottom: last ? 'none' : '1px solid #ececec'}}>
-                    <span className="text-sm font-medium text-black">{text}</span>
-                </div>
-            );
-        }
-
-        function BottomNav({ activeTab, setActiveTab, onReset }) {
+        function BottomNav({ activeTab, setActiveTab }) {
             return (
                 <div className="bg-white border-t flex justify-around py-2" style={{borderColor: '#E5E5E5', position: 'absolute', bottom: 0, left: 0, right: 0}}>
                     <button 
@@ -430,11 +422,11 @@
                         <span className="text-xs font-medium" style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
                     </button>
                     <button 
-                        onClick={onReset}
+                        onClick={() => setActiveTab('settings')}
                         className="flex flex-col items-center gap-1 py-2 px-6"
                     >
-                        <Settings size={24} style={{color: '#9E9E9E'}} />
-                        <span className="text-xs font-medium" style={{color: '#9E9E9E'}}>Reset Demo</span>
+                        <Settings size={24} style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}} />
+                        <span className="text-xs font-medium" style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}}>Settings</span>
                     </button>
                 </div>
             );
@@ -497,17 +489,21 @@
                                 <span className="text-sm font-medium" style={{color: '#696767'}}>Valid Through</span>
                                 <span className="text-sm font-medium text-black">{config.validThrough}</span>
                             </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium" style={{color: '#696767'}}>Type</span>
-                                <span className="text-sm font-medium text-black">{config.denominationType === 'fixed' ? 'Fixed Denominations' : 'Freehand'}</span>
-                            </div>
                         </div>
 
                         <div className="mt-6" style={{borderTop: '1px solid #ececec'}}>
-                            <MenuItem text="View Greeting" />
-                            <MenuItem text="Transaction History" />
-                            <MenuItem text="Brand Information" />
-                            <MenuItem text="Terms & Policies" last />
+                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                                <span className="text-sm font-medium text-black">View Greeting</span>
+                            </div>
+                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                                <span className="text-sm font-medium text-black">Transaction History</span>
+                            </div>
+                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                                <span className="text-sm font-medium text-black">Brand Information</span>
+                            </div>
+                            <div className="px-6 py-3">
+                                <span className="text-sm font-medium text-black">Terms & Policies</span>
+                            </div>
                         </div>
 
                         <div className="px-4 mt-4 mb-6">
@@ -517,13 +513,13 @@
                         </div>
                     </div>
 
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onReset={onReset} />
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
         // Freehand specific screens
-        function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, topUpAmount, onTopUp }) {
+        function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, topUpAmount, onTopUp, activeTab, setActiveTab }) {
             const purchaseValue = parseFloat(purchaseAmount) || 0;
             const hasShortfall = purchaseValue > cardBalance;
             const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
@@ -645,11 +641,13 @@
                             </button>
                         )}
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function EnterTopUpAmountScreen({ config, cardBalance, topUpAmount, setTopUpAmount, error, setError, onNext, onBack }) {
+        function EnterTopUpAmountScreen({ config, cardBalance, topUpAmount, setTopUpAmount, error, setError, onNext, onBack, activeTab, setActiveTab }) {
             const topUpInputRef = useRef(null);
             const hasAmount = topUpAmount && parseFloat(topUpAmount) > 0;
 
@@ -726,12 +724,14 @@
                             Confirm
                         </button>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
         // Fixed denomination specific screens
-        function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, setPurchaseAmount, selectedDenomination, onDenominationSelect, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onPaymentOptions }) {
+        function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, setPurchaseAmount, selectedDenomination, onDenominationSelect, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onPaymentOptions, activeTab, setActiveTab }) {
             const purchaseValue = parseFloat(purchaseAmount) || 0;
             const hasShortfall = purchaseValue > cardBalance;
             const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
@@ -898,11 +898,13 @@
                             </button>
                         )}
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function SelectDenominationScreen({ config, cardBalance, selectedDenomination, onSelect, error, onNext, onBack }) {
+        function SelectDenominationScreen({ config, cardBalance, selectedDenomination, onSelect, error, onNext, onBack, activeTab, setActiveTab }) {
             return (
                 <div className="h-full bg-white flex flex-col">
                     <StatusBar />
@@ -963,16 +965,26 @@
                             Continue to Payment
                         </button>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
         // Shared screens
-        function PaymentOptionsScreen({ onSelect }) {
+        function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
             return (
                 <div className="h-full bg-white flex flex-col">
                     <StatusBar />
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 24px 24px'}}>
+
+                    <div className="px-4 py-3 flex-shrink-0">
+                        <button onClick={onBack} className="flex items-center gap-2" style={{color: '#4062cc'}}>
+                            <ChevronLeft size={24} />
+                            <span className="font-medium text-base">Back</span>
+                        </button>
+                    </div>
+
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '24px 24px 24px'}}>
                         <h1 className="text-4xl font-bold mb-12 text-black">Pay</h1>
                         <p className="text-base font-medium mb-6" style={{color: '#9E9E9E'}}>Payment options</p>
                         
@@ -995,11 +1007,13 @@
                             ))}
                         </div>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function PaymentDetailsScreen({ amount, currency, paymentMethod }) {
+        function PaymentDetailsScreen({ amount, currency, paymentMethod, activeTab, setActiveTab }) {
             return (
                 <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5F5'}}>
                     <StatusBar />
@@ -1038,11 +1052,13 @@
                     <div className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium" style={{flexShrink: 0}}>
                         Please do not close the Gifted app until you've completed the payment process.
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function PaymentProcessingScreen() {
+        function PaymentProcessingScreen({ activeTab, setActiveTab }) {
             return (
                 <div className="h-full bg-white flex flex-col items-center justify-center">
                     <svg className="animate-spin h-16 w-16 mb-6" viewBox="0 0 50 50">
@@ -1051,14 +1067,16 @@
                     <p className="text-xl font-semibold text-black mb-2">Processing payment...</p>
                     <p className="text-sm" style={{color: '#757575'}}>Please wait</p>
                     
-                    <div style={{position: 'absolute', bottom: 0, left: 0, right: 0}} className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium">
+                    <div style={{position: 'absolute', bottom: 80, left: 0, right: 0}} className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium">
                         Please do not close the Gifted app until you've completed the payment process.
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function PaymentSuccessScreen({ amount, currency, balance, onNext }) {
+        function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
             return (
                 <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5E8'}}>
                     <StatusBar />
@@ -1096,11 +1114,13 @@
                             Need a help? <span className="underline font-medium text-black">Contact Support</span>
                         </p>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function PaymentSuccessScreenFixed({ amount, currency, balance, onNext }) {
+        function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
             return (
                 <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5E8'}}>
                     <StatusBar />
@@ -1149,28 +1169,34 @@
                             Need a help? <span className="underline font-medium text-black">Contact Support</span>
                         </p>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
 
-        function CodeRevealedScreen({ balance, currency, onBack }) {
+        function CodeRevealedScreen({ balance, currency, onBack, activeTab, setActiveTab }) {
             return (
-                <div className="h-full bg-white flex flex-col items-center justify-center px-6">
-                    <div className="text-center w-full">
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#4062cc'}}>
-                            <span className="text-white text-3xl">🎁</span>
+                <div className="h-full bg-white flex flex-col">
+                    <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
+                        <div className="text-center w-full">
+                            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#4062cc'}}>
+                                <span className="text-white text-3xl">🎁</span>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-3 text-black">Your Gift Code</h2>
+                            <p className="text-base mb-8" style={{color: '#696767'}}>Use this code for your purchase</p>
+                            <div className="rounded-xl p-6 mb-6" style={{backgroundColor: '#f7f7f7'}}>
+                                <p className="text-2xl font-bold tracking-wider text-black">GIFT-2024-XXXX</p>
+                            </div>
+                            <div className="rounded-xl p-4 mb-8" style={{backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
+                                <p className="text-sm font-medium mb-1" style={{color: '#004080'}}>Updated Balance</p>
+                                <p className="text-xl font-bold" style={{color: '#004080'}}>{balance.toFixed(2)} {currency}</p>
+                            </div>
+                            <button onClick={onBack} className="w-full text-white py-3 rounded-full font-medium text-base" style={{backgroundColor: '#4062cc'}}>Back to Card</button>
                         </div>
-                        <h2 className="text-2xl font-bold mb-3 text-black">Your Gift Code</h2>
-                        <p className="text-base mb-8" style={{color: '#696767'}}>Use this code for your purchase</p>
-                        <div className="rounded-xl p-6 mb-6" style={{backgroundColor: '#f7f7f7'}}>
-                            <p className="text-2xl font-bold tracking-wider text-black">GIFT-2024-XXXX</p>
-                        </div>
-                        <div className="rounded-xl p-4 mb-8" style={{backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
-                            <p className="text-sm font-medium mb-1" style={{color: '#004080'}}>Updated Balance</p>
-                            <p className="text-xl font-bold" style={{color: '#004080'}}>{balance.toFixed(2)} {currency}</p>
-                        </div>
-                        <button onClick={onBack} className="w-full text-white py-3 rounded-full font-medium text-base" style={{backgroundColor: '#4062cc'}}>Back to Card</button>
                     </div>
+
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
         }
