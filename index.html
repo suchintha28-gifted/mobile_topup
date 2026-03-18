@@ -94,7 +94,7 @@ function App() {
 
 function WorkflowSelector({ onSelect }) {
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F8F8F8', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
             
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 32px'}}>
@@ -315,7 +315,7 @@ function FixedWorkflow({ onReset }) {
 
 function StatusBar() {
     return (
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', backgroundColor: 'white', flexShrink: 0}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', backgroundColor: 'white', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
             <span style={{fontWeight: 600, fontSize: '14px'}}>9:41</span>
             <div style={{display: 'flex', gap: '4px', alignItems: 'center'}}>
                 <svg width="18" height="12" viewBox="0 0 18 12"><rect width="18" height="12" rx="2" fill="black"/></svg>
@@ -326,7 +326,7 @@ function StatusBar() {
 
 function BottomNav({ activeTab, setActiveTab }) {
     return (
-        <div style={{position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'white', borderTop: '1px solid #E5E5E5', display: 'flex', justifyContent: 'space-around', padding: '8px 0', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', backgroundColor: 'white', borderTop: '1px solid #E5E5E5', display: 'flex', justifyContent: 'space-around', padding: '8px 0', width: '100%', maxWidth: '393px', boxSizing: 'border-box'}}>
             <button onClick={() => setActiveTab('cards')} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 24px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer'}}>
                 <CreditCard size={24} style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}} />
                 <span style={{fontSize: '12px', fontWeight: 500, color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
@@ -345,7 +345,7 @@ function DirectTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, onConfir
     const isValid = amount > 0;
 
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <style>{`
                 input[type=number]::-webkit-inner-spin-button,
                 input[type=number]::-webkit-outer-spin-button {
@@ -358,14 +358,14 @@ function DirectTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, onConfir
                 }
             `}</style>
             <StatusBar />
-            <div style={{padding: '16px 16px 0', display: 'flex', justifyContent: 'flex-end', flexShrink: 0}}>
+            <div style={{padding: '16px 16px 0', display: 'flex', justifyContent: 'flex-end', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <button onClick={onBack} style={{width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'}}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6L18 18" stroke="#999" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                 </button>
             </div>
-            <div style={{flex: 1, padding: '24px', paddingTop: '24px', paddingBottom: '100px', display: 'flex', flexDirection: 'column'}}>
+            <div style={{flex: 1, padding: '24px', paddingTop: '24px', paddingBottom: '100px', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box'}}>
                 <h1 style={{fontSize: '36px', fontWeight: 'bold', color: 'black', marginBottom: '8px', margin: 0}}>Top-up</h1>
                 <p style={{fontSize: '16px', color: '#5A5A5A', marginBottom: '32px', lineHeight: '1.5', marginTop: '8px'}}>
                     Please enter the additional top-up value.
@@ -385,7 +385,8 @@ function DirectTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, onConfir
                             backgroundColor: '#F9F9F9',
                             border: 'none',
                             borderRadius: '8px',
-                            outline: 'none'
+                            outline: 'none',
+                            boxSizing: 'border-box'
                         }}
                         inputMode="numeric"
                     />
@@ -425,7 +426,7 @@ function DirectTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, onConfir
                     </button>
                 </div>
             </div>
-            <div style={{padding: '24px', paddingBottom: '100px', flexShrink: 0}}>
+            <div style={{padding: '24px', paddingBottom: '100px', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <button
                     onClick={isValid ? onConfirm : null}
                     disabled={!isValid}
@@ -453,16 +454,16 @@ function DirectTopUpDenominationScreen({ config, selectedDenomination, onDenomin
     const isValid = selectedDenomination !== null;
 
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{padding: '16px 16px 0', display: 'flex', justifyContent: 'flex-end', flexShrink: 0}}>
+            <div style={{padding: '16px 16px 0', display: 'flex', justifyContent: 'flex-end', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <button onClick={onBack} style={{width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'}}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6L18 18" stroke="#999" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                 </button>
             </div>
-            <div style={{flex: 1, padding: '24px', paddingTop: '24px', paddingBottom: '100px', display: 'flex', flexDirection: 'column'}}>
+            <div style={{flex: 1, padding: '24px', paddingTop: '24px', paddingBottom: '100px', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box'}}>
                 <h1 style={{fontSize: '36px', fontWeight: 'bold', color: 'black', marginBottom: '8px', margin: 0}}>Top-up</h1>
                 <p style={{fontSize: '16px', color: '#5A5A5A', marginBottom: '32px', lineHeight: '1.5', marginTop: '8px'}}>
                     Please select a top-up amount.
@@ -527,7 +528,7 @@ function DirectTopUpDenominationScreen({ config, selectedDenomination, onDenomin
                     </button>
                 </div>
             </div>
-            <div style={{padding: '24px', paddingBottom: '100px', flexShrink: 0}}>
+            <div style={{padding: '24px', paddingBottom: '100px', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <button
                     onClick={isValid ? onConfirm : null}
                     disabled={!isValid}
@@ -553,9 +554,9 @@ function DirectTopUpDenominationScreen({ config, selectedDenomination, onDenomin
 
 function CardDetailsScreen({ config, cardBalance, onRevealCode, onTopUpCard, onReset, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{padding: '0 16px', marginBottom: '24px', flexShrink: 0}}>
+            <div style={{padding: '0 16px', marginBottom: '24px', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                     <div onClick={onReset} style={{display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer'}}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#4062CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -567,14 +568,14 @@ function CardDetailsScreen({ config, cardBalance, onRevealCode, onTopUpCard, onR
                     </div>
                 </div>
             </div>
-            <div style={{flex: 1, overflowY: 'auto', paddingBottom: '80px'}}>
-                <div style={{padding: '0 16px', marginBottom: '24px'}}>
-                    <div style={{width: '100%', height: '220px', border: '1px solid #edeff3', borderRadius: '20px', boxShadow: '0px 4px 20px 0px rgba(173, 173, 173, 0.25)', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'column', padding: '24px'}}>
+            <div style={{flex: 1, overflowY: 'auto', paddingBottom: '80px', width: '100%'}}>
+                <div style={{padding: '0 16px', marginBottom: '24px', width: '100%', boxSizing: 'border-box'}}>
+                    <div style={{width: '100%', height: '220px', border: '1px solid #edeff3', borderRadius: '20px', boxShadow: '0px 4px 20px 0px rgba(173, 173, 173, 0.25)', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'column', padding: '24px', boxSizing: 'border-box'}}>
                         <div style={{fontSize: '32px', fontWeight: 700, color: '#000000', marginBottom: 'auto'}}>Presentkort</div>
                         <div style={{fontSize: '48px', fontWeight: 400, color: '#000000', marginTop: 'auto', paddingBottom: '20px', letterSpacing: '2px'}}>MODERNA MUSEET</div>
                     </div>
                 </div>
-                <div style={{padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                <div style={{padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', boxSizing: 'border-box'}}>
                     <button onClick={onRevealCode} style={{backgroundColor: '#4062cc', color: 'white', padding: '12px 32px', borderRadius: '42px', border: 'none', fontWeight: 600, fontSize: '14px', width: '100%', cursor: 'pointer'}}>Reveal Value Code</button>
                     <button onClick={onTopUpCard} style={{backgroundColor: '#ff534a', color: 'white', padding: '12px 32px', borderRadius: '42px', border: 'none', fontWeight: 600, fontSize: '14px', width: '100%', cursor: 'pointer'}}>Top Up Card</button>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '8px', fontWeight: 500, fontSize: '16px', color: '#000000'}}>
@@ -583,12 +584,12 @@ function CardDetailsScreen({ config, cardBalance, onRevealCode, onTopUpCard, onR
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}><p style={{margin: 0}}>Valid Through</p><p style={{margin: 0}}>{config.validThrough}</p></div>
                     </div>
                 </div>
-                <div style={{padding: 0, marginTop: '24px', display: 'flex', flexDirection: 'column'}}>
+                <div style={{padding: 0, marginTop: '24px', display: 'flex', flexDirection: 'column', width: '100%'}}>
                     {['View Greeting', 'Transaction History', 'Brand Information', 'Terms & Policies'].map((item, i) => (
-                        <div key={i} style={{width: '100%', borderBottom: i < 3 ? '1px solid #ececec' : 'none', padding: '14px 16px', cursor: 'pointer'}}><p style={{fontWeight: 700, fontSize: '14px', color: '#4062cc', margin: 0}}>{item}</p></div>
+                        <div key={i} style={{width: '100%', borderBottom: i < 3 ? '1px solid #ececec' : 'none', padding: '14px 16px', cursor: 'pointer', boxSizing: 'border-box'}}><p style={{fontWeight: 700, fontSize: '14px', color: '#4062cc', margin: 0}}>{item}</p></div>
                     ))}
                 </div>
-                <div style={{padding: '0 16px', marginTop: '24px', marginBottom: '24px'}}>
+                <div style={{padding: '0 16px', marginTop: '24px', marginBottom: '24px', width: '100%', boxSizing: 'border-box'}}>
                     <button style={{width: '100%', backgroundColor: 'white', border: '1px solid #979797', borderRadius: '42px', padding: '12px 32px', fontWeight: 600, fontSize: '16px', color: '#979797', cursor: 'pointer'}}>Delete Card</button>
                 </div>
             </div>
@@ -604,7 +605,7 @@ function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPur
     const inputRef = useRef(null);
 
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <style>{`
                 input[type=number]::-webkit-inner-spin-button,
                 input[type=number]::-webkit-outer-spin-button {
@@ -617,7 +618,7 @@ function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPur
                 }
             `}</style>
             <StatusBar />
-            <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0}}>
+            <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0, width: '100%', boxSizing: 'border-box'}}>
                 <button onClick={onBack} style={{position: 'absolute', left: '16px', display: 'flex', gap: '4px', alignItems: 'center', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M15 18L9 12L15 6" stroke="#4062CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -626,7 +627,7 @@ function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPur
                 </button>
                 <h1 style={{fontSize: '18px', fontWeight: 'bold', color: 'black', margin: 0}}>Enter Purchase Amount</h1>
             </div>
-            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
+            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px', width: '100%', boxSizing: 'border-box'}}>
                 <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
                     <span style={{fontSize: '14px', color: '#B4A89A'}}>Current Gift Card Balance</span>
                     <span style={{fontSize: '18px', fontWeight: 'bold', color: 'black'}}>{cardBalance} {config.currency}</span>
@@ -662,7 +663,7 @@ function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPur
                     </div>
                 </div>
             </div>
-            <div style={{padding: '16px 16px 24px', backgroundColor: 'white', flexShrink: 0, marginBottom: '80px'}}>
+            <div style={{padding: '16px 16px 24px', backgroundColor: 'white', flexShrink: 0, marginBottom: '80px', width: '100%', boxSizing: 'border-box'}}>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                     {hasShortfall ? (
                         <>
@@ -687,7 +688,7 @@ function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, s
     const availableDenominations = hasShortfall ? config.fixedDenominations.filter(amt => amt >= Math.ceil(shortfall / 100) * 100) : config.fixedDenominations;
 
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <style>{`
                 input[type=number]::-webkit-inner-spin-button,
                 input[type=number]::-webkit-outer-spin-button {
@@ -700,7 +701,7 @@ function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, s
                 }
             `}</style>
             <StatusBar />
-            <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+            <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '100%', boxSizing: 'border-box'}}>
                 <button onClick={onBack} style={{position: 'absolute', left: '16px', display: 'flex', gap: '4px', alignItems: 'center', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M15 18L9 12L15 6" stroke="#4062CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -709,7 +710,7 @@ function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, s
                 </button>
                 <h1 style={{fontSize: '18px', fontWeight: 'bold', color: 'black', margin: 0}}>Enter Purchase Amount</h1>
             </div>
-            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
+            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px', width: '100%', boxSizing: 'border-box'}}>
                 <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
                     <span style={{fontSize: '14px', color: '#B4A89A'}}>Current Gift Card Balance</span>
                     <span style={{fontSize: '18px', fontWeight: 'bold', color: 'black'}}>{cardBalance} {config.currency}</span>
@@ -760,7 +761,7 @@ function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, s
                     </div>
                 </div>
             </div>
-            <div style={{padding: '16px', paddingBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: 'white', marginBottom: '80px'}}>
+            <div style={{padding: '16px', paddingBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: 'white', marginBottom: '80px', width: '100%', boxSizing: 'border-box'}}>
                 {hasShortfall ? (
                     <>
                         <button onClick={selectedDenomination ? onPaymentOptions : null} disabled={!selectedDenomination} style={{width: '100%', color: 'white', padding: '12px', borderRadius: '999px', fontWeight: 600, fontSize: '16px', backgroundColor: selectedDenomination ? '#5B7FD8' : '#D1D5E5', border: 'none', cursor: selectedDenomination ? 'pointer' : 'not-allowed'}}>
@@ -779,9 +780,9 @@ function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, s
 
 function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{padding: '12px 16px'}}>
+            <div style={{padding: '12px 16px', width: '100%', boxSizing: 'border-box'}}>
                 <button onClick={onBack} style={{display: 'flex', gap: '4px', alignItems: 'center', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M15 18L9 12L15 6" stroke="#4062CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -789,7 +790,7 @@ function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
                     <p style={{fontWeight: 600, fontSize: '16px', color: '#4062cc', margin: 0}}>Back</p>
                 </button>
             </div>
-            <div style={{flex: 1, padding: '24px', paddingBottom: '100px'}}>
+            <div style={{flex: 1, padding: '24px', paddingBottom: '100px', width: '100%', boxSizing: 'border-box'}}>
                 <h1 style={{fontSize: '36px', fontWeight: 'bold', marginBottom: '48px', color: 'black'}}>Pay</h1>
                 <p style={{fontSize: '16px', fontWeight: 500, marginBottom: '24px', color: '#9E9E9E'}}>Payment options</p>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
@@ -811,9 +812,9 @@ function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
 
 function PaymentDetailsScreen({ amount, currency, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px', width: '100%', boxSizing: 'border-box'}}>
                 <div style={{textAlign: 'center', width: '100%'}}>
                     <div style={{width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#E8F4FD'}}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -831,7 +832,7 @@ function PaymentDetailsScreen({ amount, currency, activeTab, setActiveTab }) {
                     </div>
                 </div>
             </div>
-            <div style={{backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500}}>Please do not close the Gifted app until you've completed the payment process.</div>
+            <div style={{backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500, width: '100%', boxSizing: 'border-box'}}>Please do not close the Gifted app until you've completed the payment process.</div>
             <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
     );
@@ -839,14 +840,14 @@ function PaymentDetailsScreen({ amount, currency, activeTab, setActiveTab }) {
 
 function PaymentProcessingScreen({ activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}`}</style>
             <svg className="animate-spin" style={{width: '64px', height: '64px', marginBottom: '24px'}} viewBox="0 0 50 50">
                 <path d="M 25 5 Q 40 10, 45 25" fill="none" stroke="#0066CC" strokeWidth="4" strokeLinecap="round"/>
             </svg>
             <p style={{fontSize: '20px', fontWeight: 600, color: 'black', marginBottom: '8px'}}>Processing payment...</p>
             <p style={{fontSize: '14px', paddingBottom: '96px', color: '#757575'}}>Please wait</p>
-            <div style={{position: 'absolute', bottom: 80, backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500, width: '100%', maxWidth: '393px'}}>Please do not close the Gifted app until you've completed the payment process.</div>
+            <div style={{position: 'absolute', bottom: 80, backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500, width: '100%', maxWidth: '393px', boxSizing: 'border-box'}}>Please do not close the Gifted app until you've completed the payment process.</div>
             <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
     );
@@ -854,10 +855,10 @@ function PaymentProcessingScreen({ activeTab, setActiveTab }) {
 
 function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                <div style={{textAlign: 'center'}}>
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px', width: '100%', boxSizing: 'border-box'}}>
+                <div style={{textAlign: 'center', width: '100%'}}>
                     <div style={{marginBottom: '32px'}}>
                         <svg width="120" height="120" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
@@ -875,10 +876,10 @@ function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, se
 
 function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'white', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                <div style={{textAlign: 'center'}}>
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px', width: '100%', boxSizing: 'border-box'}}>
+                <div style={{textAlign: 'center', width: '100%'}}>
                     <div style={{marginBottom: '32px'}}>
                         <svg width="120" height="120" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
@@ -886,7 +887,7 @@ function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTa
                     </div>
                     <h2 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Thank You!</h2>
                     <p style={{fontSize: '18px', marginBottom: '16px', color: 'black'}}>Your Gift Card has been topped up.</p>
-                    <div style={{backgroundColor: 'white', borderRadius: '16px', padding: '20px', marginBottom: '32px', width: '100%'}}>
+                    <div style={{backgroundColor: 'white', borderRadius: '16px', padding: '20px', marginBottom: '32px', width: '100%', boxSizing: 'border-box'}}>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
                             <span style={{fontSize: '14px', color: '#757575'}}>Top-up Amount</span>
                             <span style={{fontSize: '18px', fontWeight: 'bold', color: '#4CAF50'}}>+{amount} {currency}</span>
@@ -906,9 +907,9 @@ function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTa
 
 function CodeRevealedScreen({ balance, currency, onBack, activeTab, setActiveTab }) {
     return (
-        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
+        <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '393px', margin: '0 auto'}}>
             <StatusBar />
-            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px', width: '100%', boxSizing: 'border-box'}}>
                 <div style={{textAlign: 'center', width: '100%'}}>
                     <div style={{width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', backgroundColor: '#4062cc'}}>
                         <span style={{color: 'white', fontSize: '30px'}}>🎁</span>
