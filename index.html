@@ -7,8 +7,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0;
             padding: 0;
@@ -35,6 +35,15 @@
         .animate-spin {
             animation: spin 1s linear infinite;
         }
+        button {
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -44,8 +53,8 @@
         const { useState, useRef } = React;
 
         // Icon Components
-        const ChevronLeft = ({ size = 24, strokeWidth = 2, style, className }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+        const ChevronLeft = ({ size = 24, strokeWidth = 2, style }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={style}>
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
         );
@@ -64,7 +73,6 @@
             </svg>
         );
 
-        // Mock configurations
         const FREEHAND_CONFIG = {
             cardBalance: 1000,
             currency: 'SEK',
@@ -109,50 +117,48 @@
 
         function WorkflowSelector({ onSelect }) {
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     
-                    <div className="flex-1 flex flex-col items-center justify-center px-8">
-                        <div className="w-20 h-20 rounded-full mb-6 flex items-center justify-center" style={{backgroundColor: '#4062cc'}}>
-                            <span className="text-4xl">🎁</span>
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 32px'}}>
+                        <div style={{width: '80px', height: '80px', borderRadius: '50%', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#4062cc'}}>
+                            <span style={{fontSize: '36px'}}>🎁</span>
                         </div>
                         
-                        <h1 className="text-3xl font-bold mb-3 text-black text-center">Gifted Top-Up</h1>
-                        <p className="text-base mb-12 text-center" style={{color: '#696767'}}>
+                        <h1 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '12px', color: 'black', textAlign: 'center'}}>Gifted Top-Up</h1>
+                        <p style={{fontSize: '16px', marginBottom: '48px', textAlign: 'center', color: '#696767'}}>
                             Select a workflow to demonstrate
                         </p>
 
-                        <div className="w-full space-y-4">
+                        <div style={{width: '100%', display: 'flex', flexDirection: 'column', gap: '16px'}}>
                             <button
                                 onClick={() => onSelect('freehand')}
-                                className="w-full p-6 rounded-2xl border-2 transition-all text-left"
-                                style={{borderColor: '#4062cc', backgroundColor: 'white'}}
+                                style={{width: '100%', padding: '24px', borderRadius: '16px', border: '2px solid #4062cc', backgroundColor: 'white', textAlign: 'left'}}
                             >
-                                <div className="text-xl font-bold text-black mb-2">Freehand Denominations</div>
-                                <p className="text-sm" style={{color: '#696767'}}>
+                                <div style={{fontSize: '20px', fontWeight: 'bold', color: 'black', marginBottom: '8px'}}>Freehand Denominations</div>
+                                <p style={{fontSize: '14px', color: '#696767', margin: 0}}>
                                     Enter any amount between 100-5000 SEK
                                 </p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#E8F4FD', color: '#0066CC'}}>
+                                <div style={{marginTop: '12px', display: 'inline-block', padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: '#E8F4FD', color: '#0066CC'}}>
                                     Variable Amount
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => onSelect('fixed')}
-                                className="w-full p-6 rounded-2xl border-2 transition-all text-left"
-                                style={{borderColor: '#ff534a', backgroundColor: 'white'}}
+                                style={{width: '100%', padding: '24px', borderRadius: '16px', border: '2px solid #ff534a', backgroundColor: 'white', textAlign: 'left'}}
                             >
-                                <div className="text-xl font-bold text-black mb-2">Fixed Denominations</div>
-                                <p className="text-sm" style={{color: '#696767'}}>
+                                <div style={{fontSize: '20px', fontWeight: 'bold', color: 'black', marginBottom: '8px'}}>Fixed Denominations</div>
+                                <p style={{fontSize: '14px', color: '#696767', margin: 0}}>
                                     Select from preset amounts: 100, 200, 500, 1000, 2000 SEK
                                 </p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#FFE8E6', color: '#ff534a'}}>
+                                <div style={{marginTop: '12px', display: 'inline-block', padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: '#FFE8E6', color: '#ff534a'}}>
                                     Preset Amounts
                                 </div>
                             </button>
                         </div>
 
-                        <p className="text-xs mt-12 text-center" style={{color: '#9E9E9E'}}>
+                        <p style={{fontSize: '12px', marginTop: '48px', textAlign: 'center', color: '#9E9E9E'}}>
                             Gifted Platform • March 2026<br/>
                             All Cards Top-Up Feature Demo
                         </p>
@@ -168,41 +174,25 @@
             const [topUpAmount, setTopUpAmount] = useState('');
             const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
             const [flowType, setFlowType] = useState('');
-            const [error, setError] = useState('');
             const [showMoreExpanded, setShowMoreExpanded] = useState(false);
             const [activeTab, setActiveTab] = useState('cards');
 
             const config = FREEHAND_CONFIG;
 
-            const calculateShortfall = () => {
-                const purchase = parseFloat(purchaseAmount) || 0;
-                return Math.max(0, purchase - cardBalance);
-            };
-
-            const validateAmount = (amount) => {
-                const value = parseFloat(amount);
-                if (isNaN(value) || value <= 0) return 'Please enter a valid amount';
-                if (value < config.minTopUpValue) return `Minimum top-up is ${config.minTopUpValue} ${config.currency}`;
-                if (value > config.maxTopUpValue) return `Maximum top-up is ${config.maxTopUpValue} ${config.currency}`;
-                return '';
-            };
-
             const handleRevealCode = () => {
                 setFlowType('reveal-code');
                 setScreen('enter-purchase-amount');
-                setError('');
             };
 
             const handlePurchaseAmountNext = () => {
                 const purchase = parseFloat(purchaseAmount);
                 if (isNaN(purchase) || purchase <= 0) {
-                    setError('Please enter a valid purchase amount');
                     return;
                 }
                 if (purchase <= cardBalance) {
                     setScreen('code-revealed');
                 } else {
-                    const shortfall = calculateShortfall();
+                    const shortfall = Math.max(0, purchase - cardBalance);
                     setTopUpAmount(shortfall.toString());
                     setScreen('payment-options');
                 }
@@ -211,16 +201,14 @@
             const handlePaymentMethodSelect = (methodId) => {
                 setSelectedPaymentMethod(methodId);
                 setScreen('payment-details');
-                setTimeout(() => handlePaymentComplete(), 1000);
-            };
-
-            const handlePaymentComplete = () => {
-                setScreen('payment-processing');
                 setTimeout(() => {
-                    const amount = parseFloat(topUpAmount);
-                    setCardBalance(prev => prev + amount);
-                    setScreen('payment-success');
-                }, 2000);
+                    setScreen('payment-processing');
+                    setTimeout(() => {
+                        const amount = parseFloat(topUpAmount);
+                        setCardBalance(prev => prev + amount);
+                        setScreen('payment-success');
+                    }, 2000);
+                }, 1000);
             };
 
             const handleSuccessNext = () => {
@@ -237,7 +225,6 @@
                 setTopUpAmount('');
                 setSelectedPaymentMethod('');
                 setFlowType('');
-                setError('');
                 setShowMoreExpanded(false);
             };
 
@@ -245,7 +232,7 @@
                 'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'enter-purchase-amount': <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen('enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
-                'payment-details': <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />,
+                'payment-details': <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-success': <PaymentSuccessScreen amount={topUpAmount} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'code-revealed': <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -261,7 +248,6 @@
             const [selectedDenomination, setSelectedDenomination] = useState(null);
             const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
             const [flowType, setFlowType] = useState('');
-            const [error, setError] = useState('');
             const [showMoreExpanded, setShowMoreExpanded] = useState(false);
             const [activeTab, setActiveTab] = useState('cards');
 
@@ -270,14 +256,12 @@
             const handleRevealCode = () => {
                 setFlowType('reveal-code');
                 setScreen('enter-purchase-amount');
-                setError('');
                 setSelectedDenomination(null);
             };
 
             const handlePurchaseAmountNext = () => {
                 const purchase = parseFloat(purchaseAmount);
                 if (isNaN(purchase) || purchase <= 0) {
-                    setError('Please enter a valid purchase amount');
                     return;
                 }
                 setScreen('code-revealed');
@@ -285,21 +269,18 @@
 
             const handleDenominationSelect = (amount) => {
                 setSelectedDenomination(amount);
-                setError('');
             };
 
             const handlePaymentMethodSelect = (methodId) => {
                 setSelectedPaymentMethod(methodId);
                 setScreen('payment-details');
-                setTimeout(() => handlePaymentComplete(), 1000);
-            };
-
-            const handlePaymentComplete = () => {
-                setScreen('payment-processing');
                 setTimeout(() => {
-                    setCardBalance(prev => prev + selectedDenomination);
-                    setScreen('payment-success');
-                }, 2000);
+                    setScreen('payment-processing');
+                    setTimeout(() => {
+                        setCardBalance(prev => prev + selectedDenomination);
+                        setScreen('payment-success');
+                    }, 2000);
+                }, 1000);
             };
 
             const handleSuccessNext = () => {
@@ -316,7 +297,6 @@
                 setSelectedDenomination(null);
                 setSelectedPaymentMethod('');
                 setFlowType('');
-                setError('');
                 setShowMoreExpanded(false);
             };
 
@@ -324,7 +304,7 @@
                 'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'enter-purchase-amount': <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen('enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
-                'payment-details': <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />,
+                'payment-details': <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'payment-success': <PaymentSuccessScreenFixed amount={selectedDenomination} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />,
                 'code-revealed': <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -335,9 +315,9 @@
 
         function StatusBar() {
             return (
-                <div className="flex justify-between items-center px-6 py-3 bg-white" style={{flexShrink: 0}}>
-                    <span className="font-semibold text-sm">9:41</span>
-                    <div className="flex gap-1 items-center">
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', backgroundColor: 'white', flexShrink: 0}}>
+                    <span style={{fontWeight: 600, fontSize: '14px'}}>9:41</span>
+                    <div style={{display: 'flex', gap: '4px', alignItems: 'center'}}>
                         <svg width="18" height="12" viewBox="0 0 18 12"><rect width="18" height="12" rx="2" fill="black"/></svg>
                     </div>
                 </div>
@@ -346,14 +326,14 @@
 
         function BottomNav({ activeTab, setActiveTab }) {
             return (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2" style={{borderColor: '#E5E5E5', maxWidth: '393px', margin: '0 auto'}}>
-                    <button onClick={() => setActiveTab('cards')} className="flex flex-col items-center gap-1 py-2 px-6">
+                <div style={{position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'white', borderTop: '1px solid #E5E5E5', display: 'flex', justifyContent: 'space-around', padding: '8px 0', maxWidth: '393px', margin: '0 auto'}}>
+                    <button onClick={() => setActiveTab('cards')} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 24px', backgroundColor: 'transparent', border: 'none'}}>
                         <CreditCard size={24} style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}} />
-                        <span className="text-xs font-medium" style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
+                        <span style={{fontSize: '12px', fontWeight: 500, color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
                     </button>
-                    <button onClick={() => setActiveTab('settings')} className="flex flex-col items-center gap-1 py-2 px-6">
+                    <button onClick={() => setActiveTab('settings')} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 24px', backgroundColor: 'transparent', border: 'none'}}>
                         <Settings size={24} style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}} />
-                        <span className="text-xs font-medium" style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}}>Settings</span>
+                        <span style={{fontSize: '12px', fontWeight: 500, color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}}>Settings</span>
                     </button>
                 </div>
             );
@@ -361,7 +341,7 @@
 
         function CardDetailsScreen({ config, cardBalance, onRevealCode, onReset, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     
                     <div style={{padding: '0 16px', marginBottom: '24px', flexShrink: 0}}>
@@ -391,7 +371,7 @@
                         </div>
 
                         <div style={{padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
-                            <button onClick={onRevealCode} style={{backgroundColor: '#4062cc', color: 'white', padding: '12px 32px', borderRadius: '42px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px', width: '100%'}}>
+                            <button onClick={onRevealCode} style={{backgroundColor: '#4062cc', color: 'white', padding: '12px 32px', borderRadius: '42px', border: 'none', fontWeight: 600, fontSize: '14px', width: '100%'}}>
                                 Reveal Value Code
                             </button>
                             
@@ -420,7 +400,7 @@
                         </div>
                         
                         <div style={{padding: '0 16px', marginTop: '24px', marginBottom: '24px'}}>
-                            <button style={{width: '100%', backgroundColor: 'white', border: '1px solid #979797', borderRadius: '42px', padding: '12px 32px', cursor: 'pointer', fontWeight: 600, fontSize: '16px', color: '#979797'}}>
+                            <button style={{width: '100%', backgroundColor: 'white', border: '1px solid #979797', borderRadius: '42px', padding: '12px 32px', fontWeight: 600, fontSize: '16px', color: '#979797'}}>
                                 Delete Card
                             </button>
                         </div>
@@ -438,55 +418,55 @@
             const inputRef = useRef(null);
 
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     
-                    <div className="bg-white px-4 py-3 flex items-center justify-center relative" style={{flexShrink: 0}}>
-                        <button onClick={onBack} className="absolute left-4" style={{color: '#000'}}>
+                    <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0}}>
+                        <button onClick={onBack} style={{position: 'absolute', left: '16px', color: '#000', backgroundColor: 'transparent', border: 'none', padding: 0}}>
                             <ChevronLeft size={28} strokeWidth={2} />
                         </button>
-                        <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
+                        <h1 style={{fontSize: '18px', fontWeight: 'bold', color: 'black', margin: 0}}>Enter Purchase Amount</h1>
                     </div>
 
                     <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
-                        <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
-                            <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
-                            <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
+                        <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
+                            <span style={{fontSize: '14px', color: '#B4A89A'}}>Current Gift Card Balance</span>
+                            <span style={{fontSize: '18px', fontWeight: 'bold', color: 'black'}}>{cardBalance} {config.currency}</span>
                         </div>
 
-                        <div className="mb-4">
-                            <div onClick={() => inputRef.current?.focus()} className="bg-white rounded-full px-5 py-3 flex items-center justify-between cursor-text" style={{border: '1px solid #E5E5E5'}}>
-                                <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
-                                <div className="flex items-center gap-2">
-                                    <input ref={inputRef} type="number" value={purchaseAmount} onChange={(e) => setPurchaseAmount(e.target.value)} className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20" placeholder="0" inputMode="numeric" />
-                                    <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
+                        <div style={{marginBottom: '16px'}}>
+                            <div onClick={() => inputRef.current?.focus()} style={{backgroundColor: 'white', borderRadius: '999px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'text', border: '1px solid #E5E5E5'}}>
+                                <span style={{fontSize: '14px', color: '#B4A89A'}}>Enter Purchase Amount</span>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                    <input ref={inputRef} type="number" value={purchaseAmount} onChange={(e) => setPurchaseAmount(e.target.value)} style={{fontSize: '20px', fontWeight: 600, color: 'black', textAlign: 'right', backgroundColor: 'transparent', border: 'none', outline: 'none', width: '80px'}} placeholder="0" inputMode="numeric" />
+                                    <span style={{fontSize: '16px', color: '#B4A89A'}}>{config.currency}</span>
                                 </div>
                             </div>
                         </div>
 
                         {hasShortfall && (
-                            <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
-                                <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
-                                <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
+                            <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
+                                <span style={{fontSize: '14px', fontWeight: 600, color: 'black'}}>Gift Card Balance Shortfall</span>
+                                <span style={{fontSize: '18px', fontWeight: 'bold', color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
                             </div>
                         )}
 
-                        <div className="mb-4">
-                            <p className="text-sm leading-relaxed text-black font-medium mb-1">
+                        <div style={{marginBottom: '16px'}}>
+                            <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', fontWeight: 500, marginBottom: '4px'}}>
                                 Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.
                             </p>
                             
                             {showMoreExpanded ? (
                                 <>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
+                                    <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>
                                         As this merchant doesn't support split payments (paying with first the Gift Card and then the balance with another payment method), the total amount of your purchase needs to be paid from your Gift Card.
                                     </p>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
+                                    <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>
                                         Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.
                                     </p>
                                 </>
                             ) : (
-                                <button onClick={() => setShowMoreExpanded(true)} className="text-sm font-medium italic mt-1" style={{color: '#666'}}>
+                                <button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0}}>
                                     ..... Show more
                                 </button>
                             )}
@@ -510,11 +490,11 @@
                                     </div>
                                 )}
                                 
-                                <button onClick={onTopUp} style={{width: '100%', backgroundColor: '#5B7FD8', color: 'white', padding: '12px', borderRadius: '999px', border: 'none', fontWeight: 600, fontSize: '16px', cursor: 'pointer'}}>
+                                <button onClick={onTopUp} style={{width: '100%', backgroundColor: '#5B7FD8', color: 'white', padding: '12px', borderRadius: '999px', border: 'none', fontWeight: 600, fontSize: '16px'}}>
                                     Top-up {shortfall.toFixed(2)} {config.currency}
                                 </button>
                                 
-                                <button onClick={onNext} style={{width: '100%', backgroundColor: 'white', color: '#5B7FD8', padding: '12px', borderRadius: '999px', border: '2px solid #5B7FD8', fontWeight: 600, fontSize: '16px', cursor: 'pointer'}}>
+                                <button onClick={onNext} style={{width: '100%', backgroundColor: 'white', color: '#5B7FD8', padding: '12px', borderRadius: '999px', border: '2px solid #5B7FD8', fontWeight: 600, fontSize: '16px'}}>
                                     Continue with Card Balance
                                 </button>
                             </div>
@@ -534,7 +514,7 @@
                                     </div>
                                 )}
                                 
-                                <button onClick={onNext} style={{width: '100%', backgroundColor: '#5B7FD8', color: 'white', padding: '12px', borderRadius: '999px', border: 'none', fontWeight: 600, fontSize: '16px', cursor: 'pointer'}}>
+                                <button onClick={onNext} style={{width: '100%', backgroundColor: '#5B7FD8', color: 'white', padding: '12px', borderRadius: '999px', border: 'none', fontWeight: 600, fontSize: '16px'}}>
                                     Reveal Value Code
                                 </button>
                             </div>
@@ -554,56 +534,56 @@
             const availableDenominations = hasShortfall ? config.fixedDenominations.filter(amt => amt >= Math.ceil(shortfall / 100) * 100) : config.fixedDenominations;
 
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
-                    <div className="bg-white px-4 py-3 flex items-center justify-center relative">
-                        <button onClick={onBack} className="absolute left-4"><ChevronLeft size={28} strokeWidth={2} /></button>
-                        <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
+                    <div style={{backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+                        <button onClick={onBack} style={{position: 'absolute', left: '16px', backgroundColor: 'transparent', border: 'none', padding: 0}}><ChevronLeft size={28} strokeWidth={2} /></button>
+                        <h1 style={{fontSize: '18px', fontWeight: 'bold', color: 'black', margin: 0}}>Enter Purchase Amount</h1>
                     </div>
                     <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
-                        <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
-                            <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
-                            <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
+                        <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
+                            <span style={{fontSize: '14px', color: '#B4A89A'}}>Current Gift Card Balance</span>
+                            <span style={{fontSize: '18px', fontWeight: 'bold', color: 'black'}}>{cardBalance} {config.currency}</span>
                         </div>
-                        <div className="mb-4">
-                            <div onClick={() => inputRef.current?.focus()} className="bg-white rounded-full px-5 py-3 flex items-center justify-between cursor-text" style={{border: '1px solid #E5E5E5'}}>
-                                <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
-                                <div className="flex items-center gap-2">
-                                    <input ref={inputRef} type="number" value={purchaseAmount} onChange={(e) => { setPurchaseAmount(e.target.value); onDenominationSelect(null); setShowMoreExpanded(false); }} className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20" placeholder="0" />
-                                    <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
+                        <div style={{marginBottom: '16px'}}>
+                            <div onClick={() => inputRef.current?.focus()} style={{backgroundColor: 'white', borderRadius: '999px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'text', border: '1px solid #E5E5E5'}}>
+                                <span style={{fontSize: '14px', color: '#B4A89A'}}>Enter Purchase Amount</span>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                    <input ref={inputRef} type="number" value={purchaseAmount} onChange={(e) => { setPurchaseAmount(e.target.value); onDenominationSelect(null); setShowMoreExpanded(false); }} style={{fontSize: '20px', fontWeight: 600, color: 'black', textAlign: 'right', backgroundColor: 'transparent', border: 'none', outline: 'none', width: '80px'}} placeholder="0" />
+                                    <span style={{fontSize: '16px', color: '#B4A89A'}}>{config.currency}</span>
                                 </div>
                             </div>
                         </div>
                         {hasShortfall && (
-                            <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
-                                <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
-                                <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
+                            <div style={{borderRadius: '16px', padding: '16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
+                                <span style={{fontSize: '14px', fontWeight: 600, color: 'black'}}>Gift Card Balance Shortfall</span>
+                                <span style={{fontSize: '18px', fontWeight: 'bold', color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
                             </div>
                         )}
-                        <div className="mb-4">
-                            <p className="text-sm leading-relaxed text-black font-medium mb-1">Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.</p>
+                        <div style={{marginBottom: '16px'}}>
+                            <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', fontWeight: 500, marginBottom: '4px'}}>Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.</p>
                             {showMoreExpanded ? (
                                 <>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
+                                    <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>
                                         As this merchant doesn't support split payments (paying with first the Gift Card and then the balance with another payment method), the total amount of your purchase needs to be paid from your Gift Card.
                                     </p>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
+                                    <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>
                                         Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.
                                     </p>
                                 </>
                             ) : (
-                                <button onClick={() => setShowMoreExpanded(true)} className="text-sm font-medium italic mt-1" style={{color: '#666'}}>..... Show more</button>
+                                <button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0}}>..... Show more</button>
                             )}
                         </div>
                         {hasShortfall && (
-                            <div className="mb-4">
-                                <p className="text-sm font-medium mb-2 text-black">Select a top-up amount:</p>
-                                <div className="grid grid-cols-3 gap-2">
+                            <div style={{marginBottom: '16px'}}>
+                                <p style={{fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: 'black'}}>Select a top-up amount:</p>
+                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
                                     {availableDenominations.map(amount => (
-                                        <button key={amount} onClick={() => onDenominationSelect(amount)} className="py-2 px-3 rounded-xl border-2" style={{borderColor: selectedDenomination === amount ? '#5B7FD8' : '#E5E7EB', backgroundColor: selectedDenomination === amount ? '#EEF3FF' : 'white'}}>
-                                            <div className="text-center">
-                                                <div className="text-base font-bold text-black">{amount}</div>
-                                                <div className="text-xs" style={{color: '#9E9E9E'}}>{config.currency}</div>
+                                        <button key={amount} onClick={() => onDenominationSelect(amount)} style={{padding: '8px 12px', borderRadius: '12px', border: `2px solid ${selectedDenomination === amount ? '#5B7FD8' : '#E5E7EB'}`, backgroundColor: selectedDenomination === amount ? '#EEF3FF' : 'white'}}>
+                                            <div style={{textAlign: 'center'}}>
+                                                <div style={{fontSize: '16px', fontWeight: 'bold', color: 'black'}}>{amount}</div>
+                                                <div style={{fontSize: '12px', color: '#9E9E9E'}}>{config.currency}</div>
                                             </div>
                                         </button>
                                     ))}
@@ -611,28 +591,28 @@
                             </div>
                         )}
                     </div>
-                    <div className="px-4 pb-6 space-y-3 bg-white border-t" style={{borderColor: '#E5E5E5', marginBottom: '80px'}}>
+                    <div style={{padding: '16px', paddingBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: 'white', borderTop: '1px solid #E5E5E5', marginBottom: '80px'}}>
                         {hasShortfall ? (
                             <>
-                                <button onClick={selectedDenomination ? onPaymentOptions : null} disabled={!selectedDenomination} className="w-full text-white py-3 rounded-full font-semibold text-base" style={{backgroundColor: selectedDenomination ? '#5B7FD8' : '#D1D5E5'}}>
+                                <button onClick={selectedDenomination ? onPaymentOptions : null} disabled={!selectedDenomination} style={{width: '100%', color: 'white', padding: '12px', borderRadius: '999px', fontWeight: 600, fontSize: '16px', backgroundColor: selectedDenomination ? '#5B7FD8' : '#D1D5E5', border: 'none'}}>
                                     {selectedDenomination ? `Top-up ${selectedDenomination} ${config.currency}` : 'Top-up'}
                                 </button>
-                                <button onClick={onNext} className="w-full py-3 rounded-full font-semibold text-base" style={{backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}>Continue with Card Balance</button>
+                                <button onClick={onNext} style={{width: '100%', padding: '12px', borderRadius: '999px', fontWeight: 600, fontSize: '16px', backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}>Continue with Card Balance</button>
                             </>
                         ) : (
                             <>
-                                <div className="rounded-2xl p-4 mb-2" style={{backgroundColor: '#FFF9E6', border: '1px solid #FFD966'}}>
-                                    <div className="flex items-start gap-2">
+                                <div style={{borderRadius: '16px', padding: '16px', marginBottom: '8px', backgroundColor: '#FFF9E6', border: '1px solid #FFD966'}}>
+                                    <div style={{display: 'flex', alignItems: 'flex-start', gap: '8px'}}>
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{flexShrink: 0, marginTop: '2px'}}>
                                             <circle cx="10" cy="10" r="9" stroke="#B8860B" strokeWidth="1.5"/>
                                             <path d="M10 6V11M10 14V14.5" stroke="#B8860B" strokeWidth="2" strokeLinecap="round"/>
                                         </svg>
-                                        <p className="text-sm leading-relaxed" style={{color: '#5C4A1A', margin: 0}}>
+                                        <p style={{fontSize: '14px', lineHeight: '1.5', color: '#5C4A1A', margin: 0}}>
                                             <strong style={{fontWeight: 700}}>Important:</strong> Once you reveal your Value Code, it will be valid for a <strong style={{fontWeight: 700}}>one-time transaction only</strong> and cannot be reused. The code will be activated for your current Card balance of <strong style={{fontWeight: 700}}>{cardBalance} {config.currency}</strong>.
                                         </p>
                                     </div>
                                 </div>
-                                <button onClick={onNext} className="w-full text-white py-3 rounded-full font-semibold text-base" style={{backgroundColor: '#5B7FD8'}}>Reveal Value Code</button>
+                                <button onClick={onNext} style={{width: '100%', color: 'white', padding: '12px', borderRadius: '999px', fontWeight: 600, fontSize: '16px', backgroundColor: '#5B7FD8', border: 'none'}}>Reveal Value Code</button>
                             </>
                         )}
                     </div>
@@ -643,22 +623,22 @@
 
         function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
-                    <div className="px-4 py-3">
-                        <button onClick={onBack} className="flex items-center gap-2" style={{color: '#4062cc'}}>
-                            <ChevronLeft size={24} /><span className="font-medium text-base">Back</span>
+                    <div style={{padding: '12px 16px'}}>
+                        <button onClick={onBack} style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#4062cc', backgroundColor: 'transparent', border: 'none', padding: 0}}>
+                            <ChevronLeft size={24} /><span style={{fontWeight: 500, fontSize: '16px'}}>Back</span>
                         </button>
                     </div>
                     <div style={{flex: 1, padding: '24px', paddingBottom: '100px'}}>
-                        <h1 className="text-4xl font-bold mb-12 text-black">Pay</h1>
-                        <p className="text-base font-medium mb-6" style={{color: '#9E9E9E'}}>Payment options</p>
-                        <div className="space-y-3">
+                        <h1 style={{fontSize: '36px', fontWeight: 'bold', marginBottom: '48px', color: 'black'}}>Pay</h1>
+                        <p style={{fontSize: '16px', fontWeight: 500, marginBottom: '24px', color: '#9E9E9E'}}>Payment options</p>
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                             {PAYMENT_METHODS.map(method => (
-                                <button key={method.id} onClick={() => onSelect(method.id)} className="w-full flex items-center justify-between p-4 rounded-xl" style={{backgroundColor: '#F5F5F5'}}>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{backgroundColor: '#E0E0E0'}}><span className="text-xl">{method.icon}</span></div>
-                                        <span className="text-lg font-medium text-black">{method.name}</span>
+                                <button key={method.id} onClick={() => onSelect(method.id)} style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: '#F5F5F5', border: 'none'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                        <div style={{width: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#E0E0E0'}}><span style={{fontSize: '20px'}}>{method.icon}</span></div>
+                                        <span style={{fontSize: '18px', fontWeight: 500, color: 'black'}}>{method.name}</span>
                                     </div>
                                     <ChevronLeft size={20} style={{color: '#9E9E9E', transform: 'rotate(180deg)'}} />
                                 </button>
@@ -672,27 +652,27 @@
 
         function PaymentDetailsScreen({ amount, currency, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5F5', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F5F5F5', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                        <div className="text-center w-full">
-                            <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style={{backgroundColor: '#E8F4FD'}}>
+                        <div style={{textAlign: 'center', width: '100%'}}>
+                            <div style={{width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#E8F4FD'}}>
                                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                                     <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM16 26C10.48 26 6 21.52 6 16C6 10.48 10.48 6 16 6C21.52 6 26 10.48 26 16C26 21.52 21.52 26 16 26Z" fill="#0066CC"/>
                                     <path d="M16 10V18M16 22V22.01" stroke="#0066CC" strokeWidth="2" strokeLinecap="round"/>
                                 </svg>
                             </div>
-                            <h2 className="text-2xl font-bold mb-3 text-black">Processing Payment</h2>
-                            <p className="text-base mb-6" style={{color: '#757575'}}>Please complete the payment in the payment provider's window</p>
-                            <div className="bg-white rounded-2xl p-6 mb-6 text-left">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm" style={{color: '#757575'}}>Amount</span>
-                                    <span className="text-xl font-bold text-black">{amount} {currency}</span>
+                            <h2 style={{fontSize: '24px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Processing Payment</h2>
+                            <p style={{fontSize: '16px', marginBottom: '24px', color: '#757575'}}>Please complete the payment in the payment provider's window</p>
+                            <div style={{backgroundColor: 'white', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'left'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                                    <span style={{fontSize: '14px', color: '#757575'}}>Amount</span>
+                                    <span style={{fontSize: '20px', fontWeight: 'bold', color: 'black'}}>{amount} {currency}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium">Please do not close the Gifted app until you've completed the payment process.</div>
+                    <div style={{backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500}}>Please do not close the Gifted app until you've completed the payment process.</div>
                     <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
@@ -700,13 +680,13 @@
 
         function PaymentProcessingScreen({ activeTab, setActiveTab }) {
             return (
-                <div className="h-screen bg-white flex flex-col items-center justify-center" style={{maxWidth: '393px', margin: '0 auto'}}>
-                    <svg className="animate-spin h-16 w-16 mb-6" viewBox="0 0 50 50">
+                <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', maxWidth: '393px', margin: '0 auto'}}>
+                    <svg className="animate-spin" style={{width: '64px', height: '64px', marginBottom: '24px'}} viewBox="0 0 50 50">
                         <path d="M 25 5 Q 40 10, 45 25" fill="none" stroke="#0066CC" strokeWidth="4" strokeLinecap="round"/>
                     </svg>
-                    <p className="text-xl font-semibold text-black mb-2">Processing payment...</p>
-                    <p className="text-sm pb-24" style={{color: '#757575'}}>Please wait</p>
-                    <div style={{position: 'absolute', bottom: 80}} className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium w-full max-w-[393px]">Please do not close the Gifted app until you've completed the payment process.</div>
+                    <p style={{fontSize: '20px', fontWeight: 600, color: 'black', marginBottom: '8px'}}>Processing payment...</p>
+                    <p style={{fontSize: '14px', paddingBottom: '96px', color: '#757575'}}>Please wait</p>
+                    <div style={{position: 'absolute', bottom: 80, backgroundColor: '#FACC15', color: 'black', textAlign: 'center', padding: '12px 24px', fontSize: '14px', fontWeight: 500, width: '100%', maxWidth: '393px'}}>Please do not close the Gifted app until you've completed the payment process.</div>
                     <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             );
@@ -714,18 +694,18 @@
 
         function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                        <div className="text-center">
-                            <div className="mb-8">
+                        <div style={{textAlign: 'center'}}>
+                            <div style={{marginBottom: '32px'}}>
                                 <svg width="120" height="120" viewBox="0 0 120 120">
                                     <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
                                 </svg>
                             </div>
-                            <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
-                            <p className="text-lg mb-8 text-black">Your Gift Card has been topped up.</p>
-                            <button onClick={onNext} className="w-full text-white py-4 rounded-full font-semibold text-lg" style={{backgroundColor: '#5B7FD8'}}>See my Gift Card</button>
+                            <h2 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Thank You!</h2>
+                            <p style={{fontSize: '18px', marginBottom: '32px', color: 'black'}}>Your Gift Card has been topped up.</p>
+                            <button onClick={onNext} style={{width: '100%', color: 'white', padding: '16px', borderRadius: '999px', fontWeight: 600, fontSize: '18px', backgroundColor: '#5B7FD8', border: 'none'}}>See my Gift Card</button>
                         </div>
                     </div>
                     <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -735,28 +715,28 @@
 
         function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
                     <StatusBar />
                     <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                        <div className="text-center">
-                            <div className="mb-8">
+                        <div style={{textAlign: 'center'}}>
+                            <div style={{marginBottom: '32px'}}>
                                 <svg width="120" height="120" viewBox="0 0 120 120">
                                     <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
                                 </svg>
                             </div>
-                            <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
-                            <p className="text-lg mb-4 text-black">Your Gift Card has been topped up.</p>
-                            <div className="bg-white rounded-2xl p-5 mb-8 w-full">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm" style={{color: '#757575'}}>Top-up Amount</span>
-                                    <span className="text-lg font-bold" style={{color: '#4CAF50'}}>+{amount} {currency}</span>
+                            <h2 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Thank You!</h2>
+                            <p style={{fontSize: '18px', marginBottom: '16px', color: 'black'}}>Your Gift Card has been topped up.</p>
+                            <div style={{backgroundColor: 'white', borderRadius: '16px', padding: '20px', marginBottom: '32px', width: '100%'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                                    <span style={{fontSize: '14px', color: '#757575'}}>Top-up Amount</span>
+                                    <span style={{fontSize: '18px', fontWeight: 'bold', color: '#4CAF50'}}>+{amount} {currency}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm" style={{color: '#757575'}}>New Balance</span>
-                                    <span className="text-xl font-bold text-black">{balance} {currency}</span>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <span style={{fontSize: '14px', color: '#757575'}}>New Balance</span>
+                                    <span style={{fontSize: '20px', fontWeight: 'bold', color: 'black'}}>{balance} {currency}</span>
                                 </div>
                             </div>
-                            <button onClick={onNext} className="w-full text-white py-4 rounded-full font-semibold text-lg" style={{backgroundColor: '#5B7FD8'}}>See my Gift Card</button>
+                            <button onClick={onNext} style={{width: '100%', color: 'white', padding: '16px', borderRadius: '999px', fontWeight: 600, fontSize: '18px', backgroundColor: '#5B7FD8', border: 'none'}}>See my Gift Card</button>
                         </div>
                     </div>
                     <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -766,22 +746,22 @@
 
         function CodeRevealedScreen({ balance, currency, onBack, activeTab, setActiveTab }) {
             return (
-                <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+                <div style={{height: '100vh', backgroundColor: 'white', display: 'flex', flexDirection: 'column', maxWidth: '393px', margin: '0 auto'}}>
                     <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
-                        <div className="text-center w-full">
-                            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#4062cc'}}>
-                                <span className="text-white text-3xl">🎁</span>
+                        <div style={{textAlign: 'center', width: '100%'}}>
+                            <div style={{width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', backgroundColor: '#4062cc'}}>
+                                <span style={{color: 'white', fontSize: '30px'}}>🎁</span>
                             </div>
-                            <h2 className="text-2xl font-bold mb-3 text-black">Your Gift Code</h2>
-                            <p className="text-base mb-8" style={{color: '#696767'}}>Use this code for your purchase</p>
-                            <div className="rounded-xl p-6 mb-6" style={{backgroundColor: '#f7f7f7'}}>
-                                <p className="text-2xl font-bold tracking-wider text-black">GIFT-2024-XXXX</p>
+                            <h2 style={{fontSize: '24px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Your Gift Code</h2>
+                            <p style={{fontSize: '16px', marginBottom: '32px', color: '#696767'}}>Use this code for your purchase</p>
+                            <div style={{borderRadius: '12px', padding: '24px', marginBottom: '24px', backgroundColor: '#f7f7f7'}}>
+                                <p style={{fontSize: '24px', fontWeight: 'bold', letterSpacing: '2px', color: 'black', margin: 0}}>GIFT-2024-XXXX</p>
                             </div>
-                            <div className="rounded-xl p-4 mb-8" style={{backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
-                                <p className="text-sm font-medium mb-1" style={{color: '#004080'}}>Updated Balance</p>
-                                <p className="text-xl font-bold" style={{color: '#004080'}}>{balance.toFixed(2)} {currency}</p>
+                            <div style={{borderRadius: '12px', padding: '16px', marginBottom: '32px', backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
+                                <p style={{fontSize: '14px', fontWeight: 500, marginBottom: '4px', color: '#004080'}}>Updated Balance</p>
+                                <p style={{fontSize: '20px', fontWeight: 'bold', color: '#004080', margin: 0}}>{balance.toFixed(2)} {currency}</p>
                             </div>
-                            <button onClick={onBack} className="w-full text-white py-3 rounded-full font-medium text-base" style={{backgroundColor: '#4062cc'}}>Back to Card</button>
+                            <button onClick={onBack} style={{width: '100%', color: 'white', padding: '12px', borderRadius: '999px', fontWeight: 500, fontSize: '16px', backgroundColor: '#4062cc', border: 'none'}}>Back to Card</button>
                         </div>
                     </div>
                     <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
