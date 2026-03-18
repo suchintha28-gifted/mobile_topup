@@ -1,1209 +1,848 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gifted Top-Up Prototype</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-        #root {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .phone-frame {
-            width: 393px;
-            height: 852px;
-            background: white;
-            border-radius: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            position: relative;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+import React, { useState, useRef } from 'react';
+import { ChevronLeft, CreditCard, Settings } from 'lucide-react';
 
-    <script type="text/babel">
-        const { useState, useRef, useEffect } = React;
+// Mock configurations
+const FREEHAND_CONFIG = {
+    cardBalance: 1000,
+    currency: 'SEK',
+    minTopUpValue: 100,
+    maxTopUpValue: 5000,
+    cardId: '2223 0000 0000 0007',
+    validThrough: '2025-12-12',
+    merchantName: 'Moderna Museet',
+    denominationType: 'freehand'
+};
 
-        // Lucide icons as SVG components
-        const ChevronLeft = ({ size = 24, ...props }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-        );
+const FIXED_CONFIG = {
+    cardBalance: 1000,
+    currency: 'SEK',
+    minTopUpValue: 100,
+    maxTopUpValue: 5000,
+    cardId: '2223 0000 0000 0007',
+    validThrough: '2025-12-12',
+    merchantName: 'Moderna Museet',
+    denominationType: 'fixed',
+    fixedDenominations: [100, 200, 500, 1000, 2000]
+};
 
-        const CreditCard = ({ size = 24, ...props }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-            </svg>
-        );
+const PAYMENT_METHODS = [
+    { id: 'card', name: 'Payment Card', icon: '💳' },
+    { id: 'swish', name: 'Swish', icon: '🔄' }
+];
 
-        const Settings = ({ size = 24, ...props }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6m5.196-15.196l-4.242 4.242m-2.828 2.828l-4.242 4.242m15.556-7.072l-4.242 4.242m-2.828 2.828l-4.242 4.242"></path>
-            </svg>
-        );
+export default function App() {
+    const [workflowType, setWorkflowType] = useState(null);
 
-        // Mock configurations
-        const FREEHAND_CONFIG = {
-            cardBalance: 1000,
-            currency: 'SEK',
-            minTopUpValue: 100,
-            maxTopUpValue: 5000,
-            cardId: '2223 0000 0000 0007',
-            validThrough: '2025-12-12',
-            merchantName: 'Moderna Museet',
-            denominationType: 'freehand'
-        };
+    if (!workflowType) {
+        return <WorkflowSelector onSelect={setWorkflowType} />;
+    }
 
-        const FIXED_CONFIG = {
-            cardBalance: 1000,
-            currency: 'SEK',
-            minTopUpValue: 100,
-            maxTopUpValue: 5000,
-            cardId: '2223 0000 0000 0007',
-            validThrough: '2025-12-12',
-            merchantName: 'Moderna Museet',
-            denominationType: 'fixed',
-            fixedDenominations: [100, 200, 500, 1000, 2000]
-        };
+    return workflowType === 'freehand' ? (
+        <FreehandWorkflow onReset={() => setWorkflowType(null)} />
+    ) : (
+        <FixedWorkflow onReset={() => setWorkflowType(null)} />
+    );
+}
 
-        const PAYMENT_METHODS = [
-            { id: 'card', name: 'Payment Card', icon: '💳' },
-            { id: 'swish', name: 'Swish', icon: '🔄' }
-        ];
-
-        function App() {
-            const [workflowType, setWorkflowType] = useState(null);
-
-            if (!workflowType) {
-                return (
-                    <div className="phone-frame">
-                        <WorkflowSelector onSelect={setWorkflowType} />
-                    </div>
-                );
-            }
-
-            return (
-                <div className="phone-frame">
-                    {workflowType === 'freehand' ? (
-                        <FreehandWorkflow onReset={() => setWorkflowType(null)} />
-                    ) : (
-                        <FixedWorkflow onReset={() => setWorkflowType(null)} />
-                    )}
+function WorkflowSelector({ onSelect }) {
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            
+            <div className="flex-1 flex flex-col items-center justify-center px-8">
+                <div className="w-20 h-20 rounded-full mb-6 flex items-center justify-center" style={{backgroundColor: '#4062cc'}}>
+                    <span className="text-4xl">🎁</span>
                 </div>
-            );
-        }
-
-        function WorkflowSelector({ onSelect }) {
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F8F8F8'}}>
-                    <StatusBar />
-                    
-                    <div className="flex-1 flex flex-col items-center justify-center px-8">
-                        <div className="w-20 h-20 rounded-full mb-6 flex items-center justify-center" style={{backgroundColor: '#4062cc'}}>
-                            <span className="text-4xl">🎁</span>
-                        </div>
-                        
-                        <h1 className="text-3xl font-bold mb-3 text-black text-center">Gifted Top-Up</h1>
-                        <p className="text-base mb-12 text-center" style={{color: '#696767'}}>
-                            Select a workflow to demonstrate
-                        </p>
-
-                        <div className="w-full space-y-4">
-                            <button
-                                onClick={() => onSelect('freehand')}
-                                className="w-full p-6 rounded-2xl border-2 transition-all text-left"
-                                style={{borderColor: '#4062cc', backgroundColor: 'white'}}
-                            >
-                                <div className="text-xl font-bold text-black mb-2">Freehand Denominations</div>
-                                <p className="text-sm" style={{color: '#696767'}}>
-                                    Enter any amount between 100-5000 SEK
-                                </p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#E8F4FD', color: '#0066CC'}}>
-                                    Variable Amount
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => onSelect('fixed')}
-                                className="w-full p-6 rounded-2xl border-2 transition-all text-left"
-                                style={{borderColor: '#ff534a', backgroundColor: 'white'}}
-                            >
-                                <div className="text-xl font-bold text-black mb-2">Fixed Denominations</div>
-                                <p className="text-sm" style={{color: '#696767'}}>
-                                    Select from preset amounts: 100, 200, 500, 1000, 2000 SEK
-                                </p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#FFE8E6', color: '#ff534a'}}>
-                                    Preset Amounts
-                                </div>
-                            </button>
-                        </div>
-
-                        <p className="text-xs mt-12 text-center" style={{color: '#9E9E9E'}}>
-                            Gifted Platform • March 2026<br/>
-                            All Cards Top-Up Feature Demo
-                        </p>
-                    </div>
-                </div>
-            );
-        }
-
-        function FreehandWorkflow({ onReset }) {
-            const [screen, setScreen] = useState('card-details');
-            const [cardBalance, setCardBalance] = useState(FREEHAND_CONFIG.cardBalance);
-            const [purchaseAmount, setPurchaseAmount] = useState('');
-            const [topUpAmount, setTopUpAmount] = useState('');
-            const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-            const [flowType, setFlowType] = useState('');
-            const [error, setError] = useState('');
-            const [showMoreExpanded, setShowMoreExpanded] = useState(false);
-            const [activeTab, setActiveTab] = useState('cards');
-
-            const config = FREEHAND_CONFIG;
-
-            const calculateShortfall = () => {
-                const purchase = parseFloat(purchaseAmount) || 0;
-                return Math.max(0, purchase - cardBalance);
-            };
-
-            const validateAmount = (amount) => {
-                const value = parseFloat(amount);
-                if (isNaN(value) || value <= 0) {
-                    return 'Please enter a valid amount';
-                }
-                if (value < config.minTopUpValue) {
-                    return `Minimum top-up is ${config.minTopUpValue} ${config.currency}`;
-                }
-                if (value > config.maxTopUpValue) {
-                    return `Maximum top-up is ${config.maxTopUpValue} ${config.currency}`;
-                }
-                return '';
-            };
-
-            const handleRevealCode = () => {
-                setFlowType('reveal-code');
-                setScreen('enter-purchase-amount');
-                setError('');
-            };
-
-            const handleTopUp = () => {
-                setFlowType('top-up');
-                setScreen('enter-topup-amount');
-                setError('');
-            };
-
-            const handlePurchaseAmountNext = () => {
-                const purchase = parseFloat(purchaseAmount);
-                if (isNaN(purchase) || purchase <= 0) {
-                    setError('Please enter a valid purchase amount');
-                    return;
-                }
                 
-                if (purchase <= cardBalance) {
-                    setScreen('code-revealed');
-                } else {
-                    const shortfall = calculateShortfall();
-                    setTopUpAmount(shortfall.toString());
-                    setScreen('payment-options');
-                }
-            };
+                <h1 className="text-3xl font-bold mb-3 text-black text-center">Gifted Top-Up</h1>
+                <p className="text-base mb-12 text-center" style={{color: '#696767'}}>
+                    Select a workflow to demonstrate
+                </p>
 
-            const handleTopUpAmountNext = () => {
-                const amount = parseFloat(topUpAmount);
-                const validationError = validateAmount(amount);
-                if (validationError) {
-                    setError(validationError);
-                    return;
-                }
-                setError('');
-                setScreen('payment-options');
-            };
-
-            const handlePaymentMethodSelect = (methodId) => {
-                setSelectedPaymentMethod(methodId);
-                setScreen('payment-details');
-                
-                setTimeout(() => {
-                    handlePaymentComplete();
-                }, 1000);
-            };
-
-            const handlePaymentComplete = () => {
-                setScreen('payment-processing');
-                
-                setTimeout(() => {
-                    const amount = parseFloat(topUpAmount);
-                    setCardBalance(prev => prev + amount);
-                    setScreen('payment-success');
-                }, 2000);
-            };
-
-            const handleSuccessNext = () => {
-                if (flowType === 'reveal-code') {
-                    setScreen('code-revealed');
-                } else {
-                    resetFlow();
-                }
-            };
-
-            const resetFlow = () => {
-                setScreen('card-details');
-                setPurchaseAmount('');
-                setTopUpAmount('');
-                setSelectedPaymentMethod('');
-                setFlowType('');
-                setError('');
-                setShowMoreExpanded(false);
-            };
-
-            return (
-                <>
-                    {screen === 'card-details' && <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'enter-topup-amount' && <EnterTopUpAmountScreen config={config} cardBalance={cardBalance} topUpAmount={topUpAmount} setTopUpAmount={setTopUpAmount} error={error} setError={setError} onNext={handleTopUpAmountNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'enter-topup-amount' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-details' && <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-processing' && <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-success' && <PaymentSuccessScreen amount={topUpAmount} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                </>
-            );
-        }
-
-        function FixedWorkflow({ onReset }) {
-            const [screen, setScreen] = useState('card-details');
-            const [cardBalance, setCardBalance] = useState(FIXED_CONFIG.cardBalance);
-            const [purchaseAmount, setPurchaseAmount] = useState('');
-            const [selectedDenomination, setSelectedDenomination] = useState(null);
-            const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-            const [flowType, setFlowType] = useState('');
-            const [error, setError] = useState('');
-            const [showMoreExpanded, setShowMoreExpanded] = useState(false);
-            const [activeTab, setActiveTab] = useState('cards');
-
-            const config = FIXED_CONFIG;
-
-            const calculateShortfall = () => {
-                const purchase = parseFloat(purchaseAmount) || 0;
-                return Math.max(0, purchase - cardBalance);
-            };
-
-            const handleRevealCode = () => {
-                setFlowType('reveal-code');
-                setScreen('enter-purchase-amount');
-                setError('');
-                setSelectedDenomination(null);
-            };
-
-            const handleTopUp = () => {
-                setFlowType('top-up');
-                setScreen('select-denomination');
-                setError('');
-                setSelectedDenomination(null);
-            };
-
-            const handlePurchaseAmountNext = () => {
-                const purchase = parseFloat(purchaseAmount);
-                if (isNaN(purchase) || purchase <= 0) {
-                    setError('Please enter a valid purchase amount');
-                    return;
-                }
-                setScreen('code-revealed');
-            };
-
-            const handleDenominationSelect = (amount) => {
-                setSelectedDenomination(amount);
-                setError('');
-            };
-
-            const handleDenominationNext = () => {
-                if (!selectedDenomination) {
-                    setError('Please select a top-up amount');
-                    return;
-                }
-                setError('');
-                setScreen('payment-options');
-            };
-
-            const handlePaymentMethodSelect = (methodId) => {
-                setSelectedPaymentMethod(methodId);
-                setScreen('payment-details');
-                
-                setTimeout(() => {
-                    handlePaymentComplete();
-                }, 1000);
-            };
-
-            const handlePaymentComplete = () => {
-                setScreen('payment-processing');
-                
-                setTimeout(() => {
-                    const amount = selectedDenomination;
-                    setCardBalance(prev => prev + amount);
-                    setScreen('payment-success');
-                }, 2000);
-            };
-
-            const handleSuccessNext = () => {
-                if (flowType === 'reveal-code') {
-                    setScreen('code-revealed');
-                } else {
-                    resetFlow();
-                }
-            };
-
-            const resetFlow = () => {
-                setScreen('card-details');
-                setPurchaseAmount('');
-                setSelectedDenomination(null);
-                setSelectedPaymentMethod('');
-                setFlowType('');
-                setError('');
-                setShowMoreExpanded(false);
-            };
-
-            return (
-                <>
-                    {screen === 'card-details' && <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'enter-purchase-amount' && <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'select-denomination' && <SelectDenominationScreen config={config} cardBalance={cardBalance} selectedDenomination={selectedDenomination} onSelect={handleDenominationSelect} error={error} onNext={handleDenominationNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-options' && <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'select-denomination' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-details' && <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-processing' && <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'payment-success' && <PaymentSuccessScreenFixed amount={selectedDenomination} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                    {screen === 'code-revealed' && <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />}
-                </>
-            );
-        }
-
-        // Shared Components
-        function StatusBar() {
-            return (
-                <div className="flex justify-between items-center px-6 py-3 bg-white" style={{flexShrink: 0}}>
-                    <span className="font-semibold text-sm">9:41</span>
-                    <div className="flex gap-1 items-center">
-                        <svg width="18" height="12" viewBox="0 0 18 12"><rect width="18" height="12" rx="2" fill="black"/></svg>
-                    </div>
-                </div>
-            );
-        }
-
-        function BottomNav({ activeTab, setActiveTab }) {
-            return (
-                <div className="bg-white border-t flex justify-around py-2" style={{borderColor: '#E5E5E5', position: 'absolute', bottom: 0, left: 0, right: 0}}>
-                    <button 
-                        onClick={() => setActiveTab('cards')}
-                        className="flex flex-col items-center gap-1 py-2 px-6"
+                <div className="w-full space-y-4">
+                    <button
+                        onClick={() => onSelect('freehand')}
+                        className="w-full p-6 rounded-2xl border-2 transition-all text-left"
+                        style={{borderColor: '#4062cc', backgroundColor: 'white'}}
                     >
-                        <CreditCard size={24} style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}} />
-                        <span className="text-xs font-medium" style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
+                        <div className="text-xl font-bold text-black mb-2">Freehand Denominations</div>
+                        <p className="text-sm" style={{color: '#696767'}}>
+                            Enter any amount between 100-5000 SEK
+                        </p>
+                        <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#E8F4FD', color: '#0066CC'}}>
+                            Variable Amount
+                        </div>
                     </button>
-                    <button 
-                        onClick={() => setActiveTab('settings')}
-                        className="flex flex-col items-center gap-1 py-2 px-6"
+
+                    <button
+                        onClick={() => onSelect('fixed')}
+                        className="w-full p-6 rounded-2xl border-2 transition-all text-left"
+                        style={{borderColor: '#ff534a', backgroundColor: 'white'}}
                     >
-                        <Settings size={24} style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}} />
-                        <span className="text-xs font-medium" style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}}>Settings</span>
+                        <div className="text-xl font-bold text-black mb-2">Fixed Denominations</div>
+                        <p className="text-sm" style={{color: '#696767'}}>
+                            Select from preset amounts: 100, 200, 500, 1000, 2000 SEK
+                        </p>
+                        <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#FFE8E6', color: '#ff534a'}}>
+                            Preset Amounts
+                        </div>
                     </button>
                 </div>
-            );
+
+                <p className="text-xs mt-12 text-center" style={{color: '#9E9E9E'}}>
+                    Gifted Platform • March 2026<br/>
+                    All Cards Top-Up Feature Demo
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function FreehandWorkflow({ onReset }) {
+    const [screen, setScreen] = useState('card-details');
+    const [cardBalance, setCardBalance] = useState(FREEHAND_CONFIG.cardBalance);
+    const [purchaseAmount, setPurchaseAmount] = useState('');
+    const [topUpAmount, setTopUpAmount] = useState('');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+    const [flowType, setFlowType] = useState('');
+    const [error, setError] = useState('');
+    const [showMoreExpanded, setShowMoreExpanded] = useState(false);
+    const [activeTab, setActiveTab] = useState('cards');
+
+    const config = FREEHAND_CONFIG;
+
+    const calculateShortfall = () => {
+        const purchase = parseFloat(purchaseAmount) || 0;
+        return Math.max(0, purchase - cardBalance);
+    };
+
+    const validateAmount = (amount) => {
+        const value = parseFloat(amount);
+        if (isNaN(value) || value <= 0) return 'Please enter a valid amount';
+        if (value < config.minTopUpValue) return `Minimum top-up is ${config.minTopUpValue} ${config.currency}`;
+        if (value > config.maxTopUpValue) return `Maximum top-up is ${config.maxTopUpValue} ${config.currency}`;
+        return '';
+    };
+
+    const handleRevealCode = () => {
+        setFlowType('reveal-code');
+        setScreen('enter-purchase-amount');
+        setError('');
+    };
+
+    const handleTopUp = () => {
+        setFlowType('top-up');
+        setScreen('enter-topup-amount');
+        setError('');
+    };
+
+    const handlePurchaseAmountNext = () => {
+        const purchase = parseFloat(purchaseAmount);
+        if (isNaN(purchase) || purchase <= 0) {
+            setError('Please enter a valid purchase amount');
+            return;
         }
+        if (purchase <= cardBalance) {
+            setScreen('code-revealed');
+        } else {
+            const shortfall = calculateShortfall();
+            setTopUpAmount(shortfall.toString());
+            setScreen('payment-options');
+        }
+    };
 
-        function CardDetailsScreen({ config, cardBalance, onRevealCode, onTopUp, onReset, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full bg-white flex flex-col">
-                    <StatusBar />
-                    <div className="flex justify-between items-center px-4 py-3" style={{flexShrink: 0}}>
-                        <button onClick={onReset} className="flex items-center gap-1" style={{color: '#4062cc'}}>
-                            <ChevronLeft size={20} />
-                            <span className="font-medium text-base">Back</span>
-                        </button>
-                        <button className="text-sm" style={{color: '#4062cc'}}>
-                            View Greeting
-                        </button>
+    const handleTopUpAmountNext = () => {
+        const amount = parseFloat(topUpAmount);
+        const validationError = validateAmount(amount);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+        setError('');
+        setScreen('payment-options');
+    };
+
+    const handlePaymentMethodSelect = (methodId) => {
+        setSelectedPaymentMethod(methodId);
+        setScreen('payment-details');
+        setTimeout(() => handlePaymentComplete(), 1000);
+    };
+
+    const handlePaymentComplete = () => {
+        setScreen('payment-processing');
+        setTimeout(() => {
+            const amount = parseFloat(topUpAmount);
+            setCardBalance(prev => prev + amount);
+            setScreen('payment-success');
+        }, 2000);
+    };
+
+    const handleSuccessNext = () => {
+        if (flowType === 'reveal-code') {
+            setScreen('code-revealed');
+        } else {
+            resetFlow();
+        }
+    };
+
+    const resetFlow = () => {
+        setScreen('card-details');
+        setPurchaseAmount('');
+        setTopUpAmount('');
+        setSelectedPaymentMethod('');
+        setFlowType('');
+        setError('');
+        setShowMoreExpanded(false);
+    };
+
+    const screens = {
+        'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'enter-purchase-amount': <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'enter-topup-amount': <EnterTopUpAmountScreen config={config} cardBalance={cardBalance} topUpAmount={topUpAmount} setTopUpAmount={setTopUpAmount} error={error} setError={setError} onNext={handleTopUpAmountNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'enter-topup-amount' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-details': <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-success': <PaymentSuccessScreen amount={topUpAmount} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'code-revealed': <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />
+    };
+
+    return screens[screen];
+}
+
+function FixedWorkflow({ onReset }) {
+    const [screen, setScreen] = useState('card-details');
+    const [cardBalance, setCardBalance] = useState(FIXED_CONFIG.cardBalance);
+    const [purchaseAmount, setPurchaseAmount] = useState('');
+    const [selectedDenomination, setSelectedDenomination] = useState(null);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+    const [flowType, setFlowType] = useState('');
+    const [error, setError] = useState('');
+    const [showMoreExpanded, setShowMoreExpanded] = useState(false);
+    const [activeTab, setActiveTab] = useState('cards');
+
+    const config = FIXED_CONFIG;
+
+    const calculateShortfall = () => {
+        const purchase = parseFloat(purchaseAmount) || 0;
+        return Math.max(0, purchase - cardBalance);
+    };
+
+    const handleRevealCode = () => {
+        setFlowType('reveal-code');
+        setScreen('enter-purchase-amount');
+        setError('');
+        setSelectedDenomination(null);
+    };
+
+    const handleTopUp = () => {
+        setFlowType('top-up');
+        setScreen('select-denomination');
+        setError('');
+        setSelectedDenomination(null);
+    };
+
+    const handlePurchaseAmountNext = () => {
+        const purchase = parseFloat(purchaseAmount);
+        if (isNaN(purchase) || purchase <= 0) {
+            setError('Please enter a valid purchase amount');
+            return;
+        }
+        setScreen('code-revealed');
+    };
+
+    const handleDenominationSelect = (amount) => {
+        setSelectedDenomination(amount);
+        setError('');
+    };
+
+    const handleDenominationNext = () => {
+        if (!selectedDenomination) {
+            setError('Please select a top-up amount');
+            return;
+        }
+        setError('');
+        setScreen('payment-options');
+    };
+
+    const handlePaymentMethodSelect = (methodId) => {
+        setSelectedPaymentMethod(methodId);
+        setScreen('payment-details');
+        setTimeout(() => handlePaymentComplete(), 1000);
+    };
+
+    const handlePaymentComplete = () => {
+        setScreen('payment-processing');
+        setTimeout(() => {
+            setCardBalance(prev => prev + selectedDenomination);
+            setScreen('payment-success');
+        }, 2000);
+    };
+
+    const handleSuccessNext = () => {
+        if (flowType === 'reveal-code') {
+            setScreen('code-revealed');
+        } else {
+            resetFlow();
+        }
+    };
+
+    const resetFlow = () => {
+        setScreen('card-details');
+        setPurchaseAmount('');
+        setSelectedDenomination(null);
+        setSelectedPaymentMethod('');
+        setFlowType('');
+        setError('');
+        setShowMoreExpanded(false);
+    };
+
+    const screens = {
+        'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUp={handleTopUp} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'enter-purchase-amount': <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'select-denomination': <SelectDenominationScreen config={config} cardBalance={cardBalance} selectedDenomination={selectedDenomination} onSelect={handleDenominationSelect} error={error} onNext={handleDenominationNext} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen(flowType === 'top-up' ? 'select-denomination' : 'enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-details': <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} paymentMethod={selectedPaymentMethod} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'payment-success': <PaymentSuccessScreenFixed amount={selectedDenomination} currency={config.currency} balance={cardBalance} onNext={handleSuccessNext} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'code-revealed': <CodeRevealedScreen balance={cardBalance} currency={config.currency} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />
+    };
+
+    return screens[screen];
+}
+
+// Shared Components
+function StatusBar() {
+    return (
+        <div className="flex justify-between items-center px-6 py-3 bg-white" style={{flexShrink: 0}}>
+            <span className="font-semibold text-sm">9:41</span>
+            <div className="flex gap-1 items-center">
+                <svg width="18" height="12" viewBox="0 0 18 12"><rect width="18" height="12" rx="2" fill="black"/></svg>
+            </div>
+        </div>
+    );
+}
+
+function BottomNav({ activeTab, setActiveTab }) {
+    return (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2" style={{borderColor: '#E5E5E5', maxWidth: '393px', margin: '0 auto'}}>
+            <button 
+                onClick={() => setActiveTab('cards')}
+                className="flex flex-col items-center gap-1 py-2 px-6"
+            >
+                <CreditCard size={24} style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}} />
+                <span className="text-xs font-medium" style={{color: activeTab === 'cards' ? '#4062cc' : '#9E9E9E'}}>My Cards</span>
+            </button>
+            <button 
+                onClick={() => setActiveTab('settings')}
+                className="flex flex-col items-center gap-1 py-2 px-6"
+            >
+                <Settings size={24} style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}} />
+                <span className="text-xs font-medium" style={{color: activeTab === 'settings' ? '#4062cc' : '#9E9E9E'}}>Settings</span>
+            </button>
+        </div>
+    );
+}
+
+function CardDetailsScreen({ config, cardBalance, onRevealCode, onTopUp, onReset, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div className="flex justify-between items-center px-4 py-3" style={{flexShrink: 0}}>
+                <button onClick={onReset} className="flex items-center gap-1" style={{color: '#4062cc'}}>
+                    <ChevronLeft size={20} />
+                    <span className="font-medium text-base">Back</span>
+                </button>
+                <button className="text-sm" style={{color: '#4062cc'}}>
+                    View Greeting
+                </button>
+            </div>
+
+            <div style={{flex: 1, overflowY: 'auto', paddingBottom: '80px'}}>
+                <div className="px-4 mt-4">
+                    <div className="bg-white border rounded-3xl shadow-lg p-6 h-48 flex flex-col justify-between" style={{borderColor: '#edeff3', boxShadow: '0px 4px 20px 0px rgba(173, 173, 173, 0.25)'}}>
+                        <div>
+                            <p className="text-lg font-medium mb-1">Presentkort</p>
+                            <p className="text-xs text-gray-500">Gift Card • {config.denominationType === 'fixed' ? 'Fixed Denominations' : 'Freehand'}</p>
+                        </div>
+                        <div className="text-3xl font-bold" style={{fontFamily: 'cursive'}}>
+                            {config.merchantName}
+                        </div>
                     </div>
-
-                    <div style={{flex: 1, overflowY: 'auto', paddingBottom: '80px'}}>
-                        <div className="px-4 mt-4">
-                            <div className="bg-white border rounded-3xl shadow-lg p-6 h-48 flex flex-col justify-between" style={{borderColor: '#edeff3', boxShadow: '0px 4px 20px 0px rgba(173, 173, 173, 0.25)'}}>
-                                <div>
-                                    <p className="text-lg font-medium mb-1">Presentkort</p>
-                                    <p className="text-xs text-gray-500">Gift Card • {config.denominationType === 'fixed' ? 'Fixed Denominations' : 'Freehand'}</p>
-                                </div>
-                                <div className="text-3xl font-bold" style={{fontFamily: 'cursive'}}>
-                                    {config.merchantName}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="px-4 mt-6 space-y-3">
-                            <button 
-                                onClick={onRevealCode}
-                                className="w-full text-white py-3 rounded-full font-medium text-base"
-                                style={{backgroundColor: '#4062cc'}}
-                            >
-                                Reveal Code
-                            </button>
-                            <button 
-                                onClick={onTopUp}
-                                className="w-full text-white py-3 rounded-full font-medium text-base"
-                                style={{backgroundColor: '#ff534a'}}
-                            >
-                                Top Up
-                            </button>
-                        </div>
-
-                        <div className="px-4 mt-5 space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium" style={{color: '#696767'}}>Card ID</span>
-                                <span className="text-sm font-medium text-black">{config.cardId}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium" style={{color: '#696767'}}>Balance</span>
-                                <span className="text-sm font-medium text-black">{cardBalance} {config.currency}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium" style={{color: '#696767'}}>Valid Through</span>
-                                <span className="text-sm font-medium text-black">{config.validThrough}</span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6" style={{borderTop: '1px solid #ececec'}}>
-                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
-                                <span className="text-sm font-medium text-black">View Greeting</span>
-                            </div>
-                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
-                                <span className="text-sm font-medium text-black">Transaction History</span>
-                            </div>
-                            <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
-                                <span className="text-sm font-medium text-black">Brand Information</span>
-                            </div>
-                            <div className="px-6 py-3">
-                                <span className="text-sm font-medium text-black">Terms & Policies</span>
-                            </div>
-                        </div>
-
-                        <div className="px-4 mt-4 mb-6">
-                            <button className="w-full border py-3 rounded-full font-medium text-base" style={{borderColor: '#979797', color: '#979797'}}>
-                                Delete Card
-                            </button>
-                        </div>
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
-            );
-        }
 
-        // Freehand specific screens
-        function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, topUpAmount, onTopUp, activeTab, setActiveTab }) {
-            const purchaseValue = parseFloat(purchaseAmount) || 0;
-            const hasShortfall = purchaseValue > cardBalance;
-            const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
-            const inputRef = useRef(null);
-
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F8F8F8'}}>
-                    <style>{`
-                        input[type=number]::-webkit-inner-spin-button,
-                        input[type=number]::-webkit-outer-spin-button {
-                            -webkit-appearance: none;
-                            margin: 0;
-                        }
-                        input[type=number] {
-                            -moz-appearance: textfield;
-                        }
-                    `}</style>
-
-                    <StatusBar />
-                    
-                    <div className="bg-white px-4 py-3 flex items-center justify-center relative" style={{flexShrink: 0}}>
-                        <button onClick={onBack} className="absolute left-4" style={{color: '#000'}}>
-                            <ChevronLeft size={28} strokeWidth={2} />
-                        </button>
-                        <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
-                    </div>
-
-                    <div style={{flex: 1, overflowY: 'auto', padding: '16px'}}>
-                        <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
-                            <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
-                            <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
-                        </div>
-
-                        <div className="mb-4">
-                            <div 
-                                onClick={() => inputRef.current?.focus()}
-                                className="bg-white rounded-full px-5 py-3 flex items-center justify-between" 
-                                style={{border: '1px solid #E5E5E5', cursor: 'text'}}
-                            >
-                                <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        ref={inputRef}
-                                        type="number"
-                                        value={purchaseAmount}
-                                        onChange={(e) => setPurchaseAmount(e.target.value)}
-                                        className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20"
-                                        placeholder="0"
-                                        inputMode="numeric"
-                                        style={{outline: 'none'}}
-                                    />
-                                    <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {hasShortfall && (
-                            <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
-                                <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
-                                <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
-                            </div>
-                        )}
-
-                        <div className="mb-4">
-                            <p className="text-sm leading-relaxed text-black font-medium mb-1">
-                                Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.
-                            </p>
-                            
-                            {showMoreExpanded ? (
-                                <>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
-                                        As this merchant doesn't support split payments (paying with first the Gift Card and then the balance with another payment method), the total amount of your purchase needs to be paid from your Gift Card.
-                                    </p>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
-                                        Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.
-                                    </p>
-                                </>
-                            ) : (
-                                <button 
-                                    onClick={() => setShowMoreExpanded(true)}
-                                    className="text-sm font-medium italic mt-1" 
-                                    style={{color: '#666'}}
-                                >
-                                    ..... Show more
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="px-4 pb-6 space-y-3 bg-white border-t" style={{borderColor: '#E5E5E5', flexShrink: 0}}>
-                        {hasShortfall ? (
-                            <>
-                                <button 
-                                    onClick={onTopUp}
-                                    className="w-full text-white py-3 rounded-full font-semibold text-base"
-                                    style={{backgroundColor: '#5B7FD8'}}
-                                >
-                                    Top-up {shortfall.toFixed(2)} {config.currency}
-                                </button>
-                                <button 
-                                    onClick={() => onNext()}
-                                    className="w-full py-3 rounded-full font-semibold text-base"
-                                    style={{backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}
-                                >
-                                    Continue With Current Card Balance
-                                </button>
-                            </>
-                        ) : (
-                            <button 
-                                onClick={onNext}
-                                disabled={!purchaseValue}
-                                className="w-full text-white py-3 rounded-full font-semibold text-base"
-                                style={{
-                                    backgroundColor: purchaseValue ? '#5B7FD8' : '#D1D5E5',
-                                    cursor: purchaseValue ? 'pointer' : 'not-allowed'
-                                }}
-                            >
-                                Reveal Code
-                            </button>
-                        )}
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                <div className="px-4 mt-6 space-y-3">
+                    <button 
+                        onClick={onRevealCode}
+                        className="w-full text-white py-3 rounded-full font-medium text-base"
+                        style={{backgroundColor: '#4062cc'}}
+                    >
+                        Reveal Code
+                    </button>
+                    <button 
+                        onClick={onTopUp}
+                        className="w-full text-white py-3 rounded-full font-medium text-base"
+                        style={{backgroundColor: '#ff534a'}}
+                    >
+                        Top Up
+                    </button>
                 </div>
-            );
-        }
 
-        function EnterTopUpAmountScreen({ config, cardBalance, topUpAmount, setTopUpAmount, error, setError, onNext, onBack, activeTab, setActiveTab }) {
-            const topUpInputRef = useRef(null);
-            const hasAmount = topUpAmount && parseFloat(topUpAmount) > 0;
-
-            return (
-                <div className="h-full bg-white flex flex-col">
-                    <StatusBar />
-                    
-                    <div className="px-6 py-4 flex justify-end">
-                        <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#F5F5F5'}}>
-                            <span className="text-xl text-gray-600">×</span>
-                        </button>
+                <div className="px-4 mt-5 space-y-2">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium" style={{color: '#696767'}}>Card ID</span>
+                        <span className="text-sm font-medium text-black">{config.cardId}</span>
                     </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium" style={{color: '#696767'}}>Balance</span>
+                        <span className="text-sm font-medium text-black">{cardBalance} {config.currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium" style={{color: '#696767'}}>Valid Through</span>
+                        <span className="text-sm font-medium text-black">{config.validThrough}</span>
+                    </div>
+                </div>
 
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px'}}>
-                        <h1 className="text-4xl font-bold mb-6 text-black" style={{color: '#2C3E50'}}>Top-up</h1>
-                        
-                        <p className="text-base mb-8" style={{color: '#5A6C7D'}}>
-                            Please enter the additional top-up value.
-                        </p>
+                <div className="mt-6" style={{borderTop: '1px solid #ececec'}}>
+                    <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                        <span className="text-sm font-medium text-black">View Greeting</span>
+                    </div>
+                    <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                        <span className="text-sm font-medium text-black">Transaction History</span>
+                    </div>
+                    <div className="px-6 py-3" style={{borderBottom: '1px solid #ececec'}}>
+                        <span className="text-sm font-medium text-black">Brand Information</span>
+                    </div>
+                    <div className="px-6 py-3">
+                        <span className="text-sm font-medium text-black">Terms & Policies</span>
+                    </div>
+                </div>
 
-                        <div className="mb-6">
+                <div className="px-4 mt-4 mb-6">
+                    <button className="w-full border py-3 rounded-full font-medium text-base" style={{borderColor: '#979797', color: '#979797'}}>
+                        Delete Card
+                    </button>
+                </div>
+            </div>
+
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onTopUp, activeTab, setActiveTab }) {
+    const purchaseValue = parseFloat(purchaseAmount) || 0;
+    const hasShortfall = purchaseValue > cardBalance;
+    const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
+    const inputRef = useRef(null);
+
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+            <style>{`
+                input[type=number]::-webkit-inner-spin-button,
+                input[type=number]::-webkit-outer-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+                input[type=number] {
+                    -moz-appearance: textfield;
+                }
+            `}</style>
+
+            <StatusBar />
+            
+            <div className="bg-white px-4 py-3 flex items-center justify-center relative" style={{flexShrink: 0}}>
+                <button onClick={onBack} className="absolute left-4" style={{color: '#000'}}>
+                    <ChevronLeft size={28} strokeWidth={2} />
+                </button>
+                <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
+            </div>
+
+            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
+                <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
+                    <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
+                    <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
+                </div>
+
+                <div className="mb-4">
+                    <div 
+                        onClick={() => inputRef.current?.focus()}
+                        className="bg-white rounded-full px-5 py-3 flex items-center justify-between cursor-text" 
+                        style={{border: '1px solid #E5E5E5'}}
+                    >
+                        <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
+                        <div className="flex items-center gap-2">
                             <input
-                                ref={topUpInputRef}
+                                ref={inputRef}
                                 type="number"
-                                value={topUpAmount}
-                                onChange={(e) => {
-                                    setTopUpAmount(e.target.value);
-                                    setError('');
-                                }}
-                                className="w-full border rounded-xl px-4 py-4 text-base font-normal text-black"
-                                style={{borderColor: error ? '#ff534a' : '#E5E7EB', backgroundColor: '#FAFAFA'}}
-                                placeholder="Amount (SEK)"
+                                value={purchaseAmount}
+                                onChange={(e) => setPurchaseAmount(e.target.value)}
+                                className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20"
+                                placeholder="0"
                                 inputMode="numeric"
                             />
-                            {error && (
-                                <p className="text-sm mt-2" style={{color: '#ff534a'}}>{error}</p>
-                            )}
-                        </div>
-
-                        <div className="flex gap-3 mb-8">
-                            <button
-                                onClick={() => {
-                                    setTopUpAmount('100');
-                                    setError('');
-                                }}
-                                className="px-6 py-3 rounded-full text-sm font-medium"
-                                style={{backgroundColor: '#F5F5F5', color: '#5A6C7D'}}
-                            >
-                                100 SEK
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setTopUpAmount('200');
-                                    setError('');
-                                }}
-                                className="px-6 py-3 rounded-full text-sm font-medium"
-                                style={{backgroundColor: '#F5F5F5', color: '#5A6C7D'}}
-                            >
-                                200 SEK
-                            </button>
+                            <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
                         </div>
                     </div>
+                </div>
 
-                    <div className="px-6 pb-8" style={{flexShrink: 0}}>
+                {hasShortfall && (
+                    <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
+                        <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
+                        <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
+                    </div>
+                )}
+
+                <div className="mb-4">
+                    <p className="text-sm leading-relaxed text-black font-medium mb-1">
+                        Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.
+                    </p>
+                    
+                    {showMoreExpanded ? (
+                        <>
+                            <p className="text-sm leading-relaxed text-black mt-3">
+                                As this merchant doesn't support split payments (paying with first the Gift Card and then the balance with another payment method), the total amount of your purchase needs to be paid from your Gift Card.
+                            </p>
+                            <p className="text-sm leading-relaxed text-black mt-3">
+                                Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.
+                            </p>
+                        </>
+                    ) : (
+                        <button 
+                            onClick={() => setShowMoreExpanded(true)}
+                            className="text-sm font-medium italic mt-1" 
+                            style={{color: '#666'}}
+                        >
+                            ..... Show more
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <div className="px-4 pb-6 space-y-3 bg-white border-t" style={{borderColor: '#E5E5E5', flexShrink: 0}}>
+                {hasShortfall ? (
+                    <>
+                        <button 
+                            onClick={onTopUp}
+                            className="w-full text-white py-3 rounded-full font-semibold text-base"
+                            style={{backgroundColor: '#5B7FD8'}}
+                        >
+                            Top-up {shortfall.toFixed(2)} {config.currency}
+                        </button>
                         <button 
                             onClick={onNext}
-                            disabled={!hasAmount}
-                            className="w-full text-white py-4 rounded-full font-semibold text-base"
-                            style={{
-                                backgroundColor: hasAmount ? '#FF6B9D' : '#FFD4E5',
-                                cursor: hasAmount ? 'pointer' : 'not-allowed'
-                            }}
+                            className="w-full py-3 rounded-full font-semibold text-base"
+                            style={{backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}
                         >
-                            Confirm
+                            Continue With Current Card Balance
                         </button>
-                    </div>
+                    </>
+                ) : (
+                    <button 
+                        onClick={onNext}
+                        disabled={!purchaseValue}
+                        className="w-full text-white py-3 rounded-full font-semibold text-base"
+                        style={{
+                            backgroundColor: purchaseValue ? '#5B7FD8' : '#D1D5E5',
+                            cursor: purchaseValue ? 'pointer' : 'not-allowed'
+                        }}
+                    >
+                        Reveal Code
+                    </button>
+                )}
+            </div>
 
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function EnterTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, error, setError, onNext, onBack, activeTab, setActiveTab }) {
+    const hasAmount = topUpAmount && parseFloat(topUpAmount) > 0;
+    
+    return (
+        <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div className="px-6 py-4 flex justify-end">
+                <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#F5F5F5'}}>
+                    <span className="text-xl text-gray-600">×</span>
+                </button>
+            </div>
+            <div style={{flex: 1, padding: '0 24px 100px'}}>
+                <h1 className="text-4xl font-bold mb-6 text-black">Top-up</h1>
+                <p className="text-base mb-8" style={{color: '#5A6C7D'}}>Please enter the additional top-up value.</p>
+                <input
+                    type="number"
+                    value={topUpAmount}
+                    onChange={(e) => { setTopUpAmount(e.target.value); setError(''); }}
+                    className="w-full border rounded-xl px-4 py-4 text-base mb-6"
+                    style={{borderColor: error ? '#ff534a' : '#E5E7EB', backgroundColor: '#FAFAFA'}}
+                    placeholder="Amount (SEK)"
+                />
+                {error && <p className="text-sm" style={{color: '#ff534a'}}>{error}</p>}
+            </div>
+            <div className="px-6 pb-8" style={{flexShrink: 0}}>
+                <button onClick={onNext} disabled={!hasAmount} className="w-full text-white py-4 rounded-full font-semibold" style={{backgroundColor: hasAmount ? '#FF6B9D' : '#FFD4E5'}}>
+                    Confirm
+                </button>
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, setPurchaseAmount, selectedDenomination, onDenominationSelect, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onPaymentOptions, activeTab, setActiveTab }) {
+    const purchaseValue = parseFloat(purchaseAmount) || 0;
+    const hasShortfall = purchaseValue > cardBalance;
+    const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
+    const inputRef = useRef(null);
+    const availableDenominations = hasShortfall ? config.fixedDenominations.filter(amt => amt >= Math.ceil(shortfall / 100) * 100) : config.fixedDenominations;
+
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F8F8F8', maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div className="bg-white px-4 py-3 flex items-center justify-center relative">
+                <button onClick={onBack} className="absolute left-4"><ChevronLeft size={28} strokeWidth={2} /></button>
+                <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
+            </div>
+            <div style={{flex: 1, overflowY: 'auto', padding: '16px', paddingBottom: '100px'}}>
+                <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
+                    <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
+                    <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
                 </div>
-            );
-        }
-
-        // Fixed denomination specific screens
-        function EnterPurchaseAmountScreenFixed({ config, cardBalance, purchaseAmount, setPurchaseAmount, selectedDenomination, onDenominationSelect, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onPaymentOptions, activeTab, setActiveTab }) {
-            const purchaseValue = parseFloat(purchaseAmount) || 0;
-            const hasShortfall = purchaseValue > cardBalance;
-            const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
-            const inputRef = useRef(null);
-            
-            const availableDenominations = hasShortfall 
-                ? config.fixedDenominations.filter(amt => amt >= Math.ceil(shortfall / 100) * 100)
-                : config.fixedDenominations;
-
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F8F8F8'}}>
-                    <style>{`
-                        input[type=number]::-webkit-inner-spin-button,
-                        input[type=number]::-webkit-outer-spin-button {
-                            -webkit-appearance: none;
-                            margin: 0;
-                        }
-                        input[type=number] {
-                            -moz-appearance: textfield;
-                        }
-                    `}</style>
-
-                    <StatusBar />
-                    
-                    <div className="bg-white px-4 py-3 flex items-center justify-center relative" style={{flexShrink: 0}}>
-                        <button onClick={onBack} className="absolute left-4" style={{color: '#000'}}>
-                            <ChevronLeft size={28} strokeWidth={2} />
-                        </button>
-                        <h1 className="text-lg font-bold text-black">Enter Purchase Amount</h1>
-                    </div>
-
-                    <div style={{flex: 1, overflowY: 'auto', padding: '16px'}}>
-                        <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF9F0', border: '1px solid #F0E5D3'}}>
-                            <span className="text-sm" style={{color: '#B4A89A'}}>Current Gift Card Balance</span>
-                            <span className="text-lg font-bold text-black">{cardBalance} {config.currency}</span>
+                <div className="mb-4">
+                    <div onClick={() => inputRef.current?.focus()} className="bg-white rounded-full px-5 py-3 flex items-center justify-between cursor-text" style={{border: '1px solid #E5E5E5'}}>
+                        <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
+                        <div className="flex items-center gap-2">
+                            <input ref={inputRef} type="number" value={purchaseAmount} onChange={(e) => { setPurchaseAmount(e.target.value); onDenominationSelect(null); setShowMoreExpanded(false); }} className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20" placeholder="0" />
+                            <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
                         </div>
-
-                        <div className="mb-4">
-                            <div 
-                                onClick={() => inputRef.current?.focus()}
-                                className="bg-white rounded-full px-5 py-3 flex items-center justify-between" 
-                                style={{border: '1px solid #E5E5E5', cursor: 'text'}}
-                            >
-                                <span className="text-sm" style={{color: '#B4A89A'}}>Enter Purchase Amount</span>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        ref={inputRef}
-                                        type="number"
-                                        value={purchaseAmount}
-                                        onChange={(e) => {
-                                            setPurchaseAmount(e.target.value);
-                                            onDenominationSelect(null);
-                                            setShowMoreExpanded(false);
-                                        }}
-                                        className="text-xl font-semibold text-black text-right bg-transparent border-none outline-none w-20"
-                                        placeholder="0"
-                                        inputMode="numeric"
-                                        style={{outline: 'none'}}
-                                    />
-                                    <span className="text-base" style={{color: '#B4A89A'}}>{config.currency}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {hasShortfall && (
-                            <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
-                                <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
-                                <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
-                            </div>
-                        )}
-
-                        <div className="mb-4">
-                            <p className="text-sm leading-relaxed text-black font-medium mb-1">
-                                Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.
-                            </p>
-                            
-                            {showMoreExpanded ? (
-                                <>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
-                                        As this merchant doesn't support split payments (paying with first the Gift Card and then the balance with another payment method), the total amount of your purchase needs to be paid from your Gift Card.
-                                    </p>
-                                    <p className="text-sm leading-relaxed text-black mt-3">
-                                        This card uses fixed denominations. You can select from preset amounts to top up your balance.
-                                    </p>
-                                </>
-                            ) : (
-                                <button 
-                                    onClick={() => setShowMoreExpanded(true)}
-                                    className="text-sm font-medium italic mt-1" 
-                                    style={{color: '#666'}}
-                                >
-                                    ..... Show more
-                                </button>
-                            )}
-                        </div>
-
-                        {hasShortfall && (
-                            <div className="mb-4">
-                                <p className="text-sm font-medium mb-2 text-black">
-                                    Select a top-up amount:
-                                </p>
-                                
-                                <div className="grid grid-cols-3 gap-2">
-                                    {availableDenominations.map(amount => (
-                                        <button
-                                            key={amount}
-                                            onClick={() => onDenominationSelect(amount)}
-                                            className="py-2 px-3 rounded-xl border-2"
-                                            style={{
-                                                borderColor: selectedDenomination === amount ? '#5B7FD8' : '#E5E7EB',
-                                                backgroundColor: selectedDenomination === amount ? '#EEF3FF' : 'white',
-                                                transition: 'all 0.2s'
-                                            }}
-                                        >
-                                            <div className="text-center">
-                                                <div className="text-base font-bold text-black">{amount}</div>
-                                                <div className="text-xs" style={{color: '#9E9E9E'}}>{config.currency}</div>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
-
-                    <div className="px-4 pb-6 space-y-3 bg-white border-t" style={{borderColor: '#E5E5E5', flexShrink: 0}}>
-                        {hasShortfall ? (
-                            <>
-                                <button 
-                                    onClick={() => {
-                                        if (selectedDenomination) {
-                                            onPaymentOptions();
-                                        }
-                                    }}
-                                    disabled={!selectedDenomination}
-                                    className="w-full text-white py-3 rounded-full font-semibold text-base"
-                                    style={{
-                                        backgroundColor: selectedDenomination ? '#5B7FD8' : '#D1D5E5',
-                                        cursor: selectedDenomination ? 'pointer' : 'not-allowed',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {selectedDenomination ? `Top-up ${selectedDenomination} ${config.currency}` : 'Top-up'}
-                                </button>
-                                <button 
-                                    onClick={() => onNext()}
-                                    className="w-full py-3 rounded-full font-semibold text-base"
-                                    style={{backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}
-                                >
-                                    Continue With Current Card Balance
-                                </button>
-                            </>
-                        ) : (
-                            <button 
-                                onClick={onNext}
-                                disabled={!purchaseValue}
-                                className="w-full text-white py-3 rounded-full font-semibold text-base"
-                                style={{
-                                    backgroundColor: purchaseValue ? '#5B7FD8' : '#D1D5E5',
-                                    cursor: purchaseValue ? 'pointer' : 'not-allowed'
-                                }}
-                            >
-                                Reveal Code
-                            </button>
-                        )}
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
-            );
-        }
-
-        function SelectDenominationScreen({ config, cardBalance, selectedDenomination, onSelect, error, onNext, onBack, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full bg-white flex flex-col">
-                    <StatusBar />
-                    
-                    <div className="px-6 py-4 flex justify-end">
-                        <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#F5F5F5'}}>
-                            <span className="text-xl text-gray-600">×</span>
-                        </button>
+                {hasShortfall && (
+                    <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{backgroundColor: '#FFF5F5', border: '2px solid #FF4444'}}>
+                        <span className="text-sm font-semibold text-black">Gift Card Balance Shortfall</span>
+                        <span className="text-lg font-bold" style={{color: '#FF4444'}}>-{shortfall.toFixed(2)} {config.currency}</span>
                     </div>
-
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px'}}>
-                        <h1 className="text-4xl font-bold mb-6 text-black" style={{color: '#2C3E50'}}>Top-up</h1>
-                        
-                        <div className="rounded-2xl p-4 mb-6 flex justify-between items-center" style={{backgroundColor: '#F0F4FF', border: '1px solid #D0DBFF'}}>
-                            <span className="text-sm font-medium" style={{color: '#5A6C7D'}}>Current Balance</span>
-                            <span className="text-xl font-bold text-black">{cardBalance} {config.currency}</span>
-                        </div>
-                        
-                        <p className="text-base mb-6" style={{color: '#5A6C7D'}}>
-                            Select a top-up amount:
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                            {config.fixedDenominations.map(amount => (
-                                <button
-                                    key={amount}
-                                    onClick={() => onSelect(amount)}
-                                    className="p-4 rounded-2xl border-2"
-                                    style={{
-                                        borderColor: selectedDenomination === amount ? '#FF6B9D' : '#E5E7EB',
-                                        backgroundColor: selectedDenomination === amount ? '#FFF0F6' : 'white',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
+                )}
+                <div className="mb-4">
+                    <p className="text-sm leading-relaxed text-black font-medium mb-1">Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.</p>
+                    {!showMoreExpanded && <button onClick={() => setShowMoreExpanded(true)} className="text-sm font-medium italic mt-1" style={{color: '#666'}}>..... Show more</button>}
+                    {showMoreExpanded && <p className="text-sm leading-relaxed text-black mt-3">As this merchant doesn't support split payments, the total amount needs to be paid from your Gift Card. This card uses fixed denominations.</p>}
+                </div>
+                {hasShortfall && (
+                    <div className="mb-4">
+                        <p className="text-sm font-medium mb-2 text-black">Select a top-up amount:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                            {availableDenominations.map(amount => (
+                                <button key={amount} onClick={() => onDenominationSelect(amount)} className="py-2 px-3 rounded-xl border-2" style={{borderColor: selectedDenomination === amount ? '#5B7FD8' : '#E5E7EB', backgroundColor: selectedDenomination === amount ? '#EEF3FF' : 'white'}}>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-black mb-1">{amount}</div>
+                                        <div className="text-base font-bold text-black">{amount}</div>
                                         <div className="text-xs" style={{color: '#9E9E9E'}}>{config.currency}</div>
                                     </div>
                                 </button>
                             ))}
                         </div>
-
-                        {error && (
-                            <p className="text-sm mb-4" style={{color: '#ff534a'}}>{error}</p>
-                        )}
                     </div>
-
-                    <div className="px-6 pb-8" style={{flexShrink: 0}}>
-                        <button 
-                            onClick={onNext}
-                            disabled={!selectedDenomination}
-                            className="w-full text-white py-4 rounded-full font-semibold text-base"
-                            style={{
-                                backgroundColor: selectedDenomination ? '#FF6B9D' : '#FFD4E5',
-                                cursor: selectedDenomination ? 'pointer' : 'not-allowed'
-                            }}
-                        >
-                            Continue to Payment
+                )}
+            </div>
+            <div className="px-4 pb-6 space-y-3 bg-white border-t" style={{borderColor: '#E5E5E5'}}>
+                {hasShortfall ? (
+                    <>
+                        <button onClick={selectedDenomination ? onPaymentOptions : null} disabled={!selectedDenomination} className="w-full text-white py-3 rounded-full font-semibold text-base" style={{backgroundColor: selectedDenomination ? '#5B7FD8' : '#D1D5E5'}}>
+                            {selectedDenomination ? `Top-up ${selectedDenomination} ${config.currency}` : 'Top-up'}
                         </button>
-                    </div>
+                        <button onClick={onNext} className="w-full py-3 rounded-full font-semibold text-base" style={{backgroundColor: 'white', border: '2px solid #5B7FD8', color: '#5B7FD8'}}>Continue With Current Card Balance</button>
+                    </>
+                ) : (
+                    <button onClick={onNext} disabled={!purchaseValue} className="w-full text-white py-3 rounded-full font-semibold text-base" style={{backgroundColor: purchaseValue ? '#5B7FD8' : '#D1D5E5'}}>Reveal Code</button>
+                )}
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
 
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+function SelectDenominationScreen({ config, cardBalance, selectedDenomination, onSelect, onNext, onBack, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div className="px-6 py-4 flex justify-end" style={{flexShrink: 0}}>
+                <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#F5F5F5'}}>
+                    <span className="text-xl text-gray-600">×</span>
+                </button>
+            </div>
+            <div style={{flex: 1, overflowY: 'auto', padding: '0 24px', paddingBottom: '0'}}>
+                <h1 className="text-4xl font-bold mb-6 text-black">Top-up</h1>
+                <div className="rounded-2xl p-4 mb-6 flex justify-between items-center" style={{backgroundColor: '#F0F4FF', border: '1px solid #D0DBFF'}}>
+                    <span className="text-sm font-medium" style={{color: '#5A6C7D'}}>Current Balance</span>
+                    <span className="text-xl font-bold text-black">{cardBalance} {config.currency}</span>
                 </div>
-            );
-        }
-
-        // Shared screens
-        function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full bg-white flex flex-col">
-                    <StatusBar />
-
-                    <div className="px-4 py-3 flex-shrink-0">
-                        <button onClick={onBack} className="flex items-center gap-2" style={{color: '#4062cc'}}>
-                            <ChevronLeft size={24} />
-                            <span className="font-medium text-base">Back</span>
+                <p className="text-base mb-6" style={{color: '#5A6C7D'}}>Select a top-up amount:</p>
+                <div className="grid grid-cols-2 gap-3 pb-4">
+                    {config.fixedDenominations.map(amount => (
+                        <button key={amount} onClick={() => onSelect(amount)} className="py-2 px-3 rounded-xl border-2" style={{borderColor: selectedDenomination === amount ? '#FF6B9D' : '#E5E7EB', backgroundColor: selectedDenomination === amount ? '#FFF0F6' : 'white'}}>
+                            <div className="text-center">
+                                <div className="text-base font-bold text-black">{amount}</div>
+                                <div className="text-xs" style={{color: '#9E9E9E'}}>{config.currency}</div>
+                            </div>
                         </button>
-                    </div>
-
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '24px 24px 24px'}}>
-                        <h1 className="text-4xl font-bold mb-12 text-black">Pay</h1>
-                        <p className="text-base font-medium mb-6" style={{color: '#9E9E9E'}}>Payment options</p>
-                        
-                        <div className="space-y-3">
-                            {PAYMENT_METHODS.map(method => (
-                                <button
-                                    key={method.id}
-                                    onClick={() => onSelect(method.id)}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl"
-                                    style={{backgroundColor: '#F5F5F5'}}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{backgroundColor: '#E0E0E0'}}>
-                                            <span className="text-xl">{method.icon}</span>
-                                        </div>
-                                        <span className="text-lg font-medium text-black">{method.name}</span>
-                                    </div>
-                                    <ChevronLeft size={20} style={{color: '#9E9E9E', transform: 'rotate(180deg)'}} />
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                    ))}
                 </div>
-            );
-        }
+            </div>
+            <div className="px-6 py-4 bg-white border-t" style={{borderColor: '#E5E5E5', flexShrink: 0}}>
+                <button onClick={onNext} disabled={!selectedDenomination} className="w-full text-white py-4 rounded-full font-semibold" style={{backgroundColor: selectedDenomination ? '#FF6B9D' : '#FFD4E5'}}>
+                    Continue to Payment
+                </button>
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
 
-        function PaymentDetailsScreen({ amount, currency, paymentMethod, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5F5'}}>
-                    <StatusBar />
-                    
-                    <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
-                        <div className="text-center w-full">
-                            <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style={{backgroundColor: '#E8F4FD'}}>
-                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                    <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM16 26C10.48 26 6 21.52 6 16C6 10.48 10.48 6 16 6C21.52 6 26 10.48 26 16C26 21.52 21.52 26 16 26Z" fill="#0066CC"/>
-                                    <path d="M16 10V18M16 22V22.01" stroke="#0066CC" strokeWidth="2" strokeLinecap="round"/>
-                                </svg>
+function PaymentOptionsScreen({ onSelect, onBack, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div className="px-4 py-3">
+                <button onClick={onBack} className="flex items-center gap-2" style={{color: '#4062cc'}}>
+                    <ChevronLeft size={24} /><span className="font-medium text-base">Back</span>
+                </button>
+            </div>
+            <div style={{flex: 1, padding: '24px', paddingBottom: '100px'}}>
+                <h1 className="text-4xl font-bold mb-12 text-black">Pay</h1>
+                <p className="text-base font-medium mb-6" style={{color: '#9E9E9E'}}>Payment options</p>
+                <div className="space-y-3">
+                    {PAYMENT_METHODS.map(method => (
+                        <button key={method.id} onClick={() => onSelect(method.id)} className="w-full flex items-center justify-between p-4 rounded-xl" style={{backgroundColor: '#F5F5F5'}}>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{backgroundColor: '#E0E0E0'}}><span className="text-xl">{method.icon}</span></div>
+                                <span className="text-lg font-medium text-black">{method.name}</span>
                             </div>
-                            
-                            <h2 className="text-2xl font-bold mb-3 text-black">Processing Payment</h2>
-                            <p className="text-base mb-6" style={{color: '#757575'}}>
-                                Please complete the payment in the payment provider's window
-                            </p>
-                            
-                            <div className="bg-white rounded-2xl p-6 mb-6 text-left">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm" style={{color: '#757575'}}>Amount</span>
-                                    <span className="text-xl font-bold text-black">{amount} {currency}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm" style={{color: '#757575'}}>Payment Method</span>
-                                    <span className="text-sm font-medium text-black">{paymentMethod === 'swish' ? 'Swish' : 'Payment Card'}</span>
-                                </div>
-                            </div>
-                            
-                            <p className="text-sm" style={{color: '#9E9E9E'}}>
-                                A new window will open for payment processing
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium" style={{flexShrink: 0}}>
-                        Please do not close the Gifted app until you've completed the payment process.
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-                </div>
-            );
-        }
-
-        function PaymentProcessingScreen({ activeTab, setActiveTab }) {
-            return (
-                <div className="h-full bg-white flex flex-col items-center justify-center">
-                    <svg className="animate-spin h-16 w-16 mb-6" viewBox="0 0 50 50">
-                        <path d="M 25 5 Q 40 10, 45 25" fill="none" stroke="#0066CC" strokeWidth="4" strokeLinecap="round"/>
-                    </svg>
-                    <p className="text-xl font-semibold text-black mb-2">Processing payment...</p>
-                    <p className="text-sm" style={{color: '#757575'}}>Please wait</p>
-                    
-                    <div style={{position: 'absolute', bottom: 80, left: 0, right: 0}} className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium">
-                        Please do not close the Gifted app until you've completed the payment process.
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-                </div>
-            );
-        }
-
-        function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5E8'}}>
-                    <StatusBar />
-                    
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
-                        <div className="mb-8">
-                            <svg width="120" height="120" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
-                                <g transform="translate(60, 60)">
-                                    <rect x="-15" y="-20" width="8" height="25" fill="#E91E63" transform="rotate(-30)"/>
-                                    <rect x="-8" y="-25" width="8" height="25" fill="#2196F3" transform="rotate(-10)"/>
-                                    <circle cx="0" cy="0" r="18" fill="#37474F"/>
-                                    <circle cx="-3" cy="8" r="10" fill="#546E7A"/>
-                                    <rect x="7" y="-18" width="8" height="20" fill="#4CAF50" transform="rotate(20)"/>
-                                    <rect x="15" y="-15" width="8" height="18" fill="#FF9800" transform="rotate(35)"/>
-                                    <rect x="-20" y="5" width="8" height="15" fill="#9C27B0" transform="rotate(-45)"/>
-                                    <rect x="12" y="8" width="8" height="12" fill="#00BCD4" transform="rotate(55)"/>
-                                    <rect x="-12" y="12" width="8" height="12" fill="#FFEB3B" transform="rotate(-60)"/>
-                                </g>
-                            </svg>
-                        </div>
-                        
-                        <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
-                        <p className="text-lg mb-8 text-black">Your Gift Card has been topped up.</p>
-                        
-                        <button 
-                            onClick={onNext}
-                            className="w-full max-w-sm text-white py-4 rounded-full font-semibold text-lg mb-8"
-                            style={{backgroundColor: '#5B7FD8'}}
-                        >
-                            See my Gift Card
+                            <ChevronLeft size={20} style={{color: '#9E9E9E', transform: 'rotate(180deg)'}} />
                         </button>
-
-                        <p className="text-sm" style={{color: '#757575'}}>
-                            Need a help? <span className="underline font-medium text-black">Contact Support</span>
-                        </p>
-                    </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                    ))}
                 </div>
-            );
-        }
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
 
-        function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full flex flex-col" style={{backgroundColor: '#F5F5E8'}}>
-                    <StatusBar />
-                    
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
-                        <div className="mb-8">
-                            <svg width="120" height="120" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
-                                <g transform="translate(60, 60)">
-                                    <rect x="-15" y="-20" width="8" height="25" fill="#E91E63" transform="rotate(-30)"/>
-                                    <rect x="-8" y="-25" width="8" height="25" fill="#2196F3" transform="rotate(-10)"/>
-                                    <circle cx="0" cy="0" r="18" fill="#37474F"/>
-                                    <circle cx="-3" cy="8" r="10" fill="#546E7A"/>
-                                    <rect x="7" y="-18" width="8" height="20" fill="#4CAF50" transform="rotate(20)"/>
-                                    <rect x="15" y="-15" width="8" height="18" fill="#FF9800" transform="rotate(35)"/>
-                                    <rect x="-20" y="5" width="8" height="15" fill="#9C27B0" transform="rotate(-45)"/>
-                                    <rect x="12" y="8" width="8" height="12" fill="#00BCD4" transform="rotate(55)"/>
-                                    <rect x="-12" y="12" width="8" height="12" fill="#FFEB3B" transform="rotate(-60)"/>
-                                </g>
-                            </svg>
-                        </div>
-                        
-                        <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
-                        <p className="text-lg mb-4 text-black">Your Gift Card has been topped up.</p>
-                        
-                        <div className="bg-white rounded-2xl p-5 mb-8 w-full" style={{maxWidth: '384px'}}>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm" style={{color: '#757575'}}>Top-up Amount</span>
-                                <span className="text-lg font-bold" style={{color: '#4CAF50'}}>+{amount} {currency}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm" style={{color: '#757575'}}>New Balance</span>
-                                <span className="text-xl font-bold text-black">{balance} {currency}</span>
-                            </div>
-                        </div>
-                        
-                        <button 
-                            onClick={onNext}
-                            className="w-full text-white py-4 rounded-full font-semibold text-lg mb-8"
-                            style={{backgroundColor: '#5B7FD8', maxWidth: '384px'}}
-                        >
-                            See my Gift Card
-                        </button>
-
-                        <p className="text-sm" style={{color: '#757575'}}>
-                            Need a help? <span className="underline font-medium text-black">Contact Support</span>
-                        </p>
+function PaymentDetailsScreen({ amount, currency, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5F5', maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+                <div className="text-center w-full">
+                    <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style={{backgroundColor: '#E8F4FD'}}>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM16 26C10.48 26 6 21.52 6 16C6 10.48 10.48 6 16 6C21.52 6 26 10.48 26 16C26 21.52 21.52 26 16 26Z" fill="#0066CC"/>
+                            <path d="M16 10V18M16 22V22.01" stroke="#0066CC" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
                     </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-                </div>
-            );
-        }
-
-        function CodeRevealedScreen({ balance, currency, onBack, activeTab, setActiveTab }) {
-            return (
-                <div className="h-full bg-white flex flex-col">
-                    <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
-                        <div className="text-center w-full">
-                            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#4062cc'}}>
-                                <span className="text-white text-3xl">🎁</span>
-                            </div>
-                            <h2 className="text-2xl font-bold mb-3 text-black">Your Gift Code</h2>
-                            <p className="text-base mb-8" style={{color: '#696767'}}>Use this code for your purchase</p>
-                            <div className="rounded-xl p-6 mb-6" style={{backgroundColor: '#f7f7f7'}}>
-                                <p className="text-2xl font-bold tracking-wider text-black">GIFT-2024-XXXX</p>
-                            </div>
-                            <div className="rounded-xl p-4 mb-8" style={{backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
-                                <p className="text-sm font-medium mb-1" style={{color: '#004080'}}>Updated Balance</p>
-                                <p className="text-xl font-bold" style={{color: '#004080'}}>{balance.toFixed(2)} {currency}</p>
-                            </div>
-                            <button onClick={onBack} className="w-full text-white py-3 rounded-full font-medium text-base" style={{backgroundColor: '#4062cc'}}>Back to Card</button>
+                    <h2 className="text-2xl font-bold mb-3 text-black">Processing Payment</h2>
+                    <p className="text-base mb-6" style={{color: '#757575'}}>Please complete the payment in the payment provider's window</p>
+                    <div className="bg-white rounded-2xl p-6 mb-6 text-left">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm" style={{color: '#757575'}}>Amount</span>
+                            <span className="text-xl font-bold text-black">{amount} {currency}</span>
                         </div>
                     </div>
-
-                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
-            );
-        }
+            </div>
+            <div className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium">Please do not close the Gifted app until you've completed the payment process.</div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
 
-        // Render
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+function PaymentProcessingScreen({ activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen bg-white flex flex-col items-center justify-center" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <svg className="animate-spin h-16 w-16 mb-6" viewBox="0 0 50 50">
+                <path d="M 25 5 Q 40 10, 45 25" fill="none" stroke="#0066CC" strokeWidth="4" strokeLinecap="round"/>
+            </svg>
+            <p className="text-xl font-semibold text-black mb-2">Processing payment...</p>
+            <p className="text-sm pb-24" style={{color: '#757575'}}>Please wait</p>
+            <div style={{position: 'absolute', bottom: 80}} className="bg-yellow-400 text-black text-center py-3 px-6 text-sm font-medium w-full max-w-[393px]">Please do not close the Gifted app until you've completed the payment process.</div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function PaymentSuccessScreen({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+                <div className="text-center">
+                    <div className="mb-8">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
+                    <p className="text-lg mb-8 text-black">Your Gift Card has been topped up.</p>
+                    <button onClick={onNext} className="w-full text-white py-4 rounded-full font-semibold text-lg" style={{backgroundColor: '#5B7FD8'}}>See my Gift Card</button>
+                </div>
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function PaymentSuccessScreenFixed({ amount, currency, balance, onNext, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen flex flex-col" style={{backgroundColor: '#F5F5E8', maxWidth: '393px', margin: '0 auto'}}>
+            <StatusBar />
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+                <div className="text-center">
+                    <div className="mb-8">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="4 4"/>
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-bold mb-3 text-black">Thank You!</h2>
+                    <p className="text-lg mb-4 text-black">Your Gift Card has been topped up.</p>
+                    <div className="bg-white rounded-2xl p-5 mb-8 w-full">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm" style={{color: '#757575'}}>Top-up Amount</span>
+                            <span className="text-lg font-bold" style={{color: '#4CAF50'}}>+{amount} {currency}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm" style={{color: '#757575'}}>New Balance</span>
+                            <span className="text-xl font-bold text-black">{balance} {currency}</span>
+                        </div>
+                    </div>
+                    <button onClick={onNext} className="w-full text-white py-4 rounded-full font-semibold text-lg" style={{backgroundColor: '#5B7FD8'}}>See my Gift Card</button>
+                </div>
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
+
+function CodeRevealedScreen({ balance, currency, onBack, activeTab, setActiveTab }) {
+    return (
+        <div className="h-screen bg-white flex flex-col" style={{maxWidth: '393px', margin: '0 auto'}}>
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 100px'}}>
+                <div className="text-center w-full">
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#4062cc'}}>
+                        <span className="text-white text-3xl">🎁</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3 text-black">Your Gift Code</h2>
+                    <p className="text-base mb-8" style={{color: '#696767'}}>Use this code for your purchase</p>
+                    <div className="rounded-xl p-6 mb-6" style={{backgroundColor: '#f7f7f7'}}>
+                        <p className="text-2xl font-bold tracking-wider text-black">GIFT-2024-XXXX</p>
+                    </div>
+                    <div className="rounded-xl p-4 mb-8" style={{backgroundColor: '#e8f4ff', border: '1px solid #b3d9ff'}}>
+                        <p className="text-sm font-medium mb-1" style={{color: '#004080'}}>Updated Balance</p>
+                        <p className="text-xl font-bold" style={{color: '#004080'}}>{balance.toFixed(2)} {currency}</p>
+                    </div>
+                    <button onClick={onBack} className="w-full text-white py-3 rounded-full font-medium text-base" style={{backgroundColor: '#4062cc'}}>Back to Card</button>
+                </div>
+            </div>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+    );
+}
