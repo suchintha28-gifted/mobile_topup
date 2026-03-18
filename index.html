@@ -161,11 +161,6 @@ function FreehandWorkflow({ onReset }) {
         setScreen('payment-options');
     };
 
-    const handleTopUpFromPurchase = () => {
-        if (!selectedDenomination) return;
-        setScreen('payment-options');
-    };
-
     const handlePurchaseAmountNext = () => {
         // Always go directly to code-revealed screen
         setScreen('code-revealed');
