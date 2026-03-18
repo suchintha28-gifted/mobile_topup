@@ -50,8 +50,6 @@
             </svg>
         );
 
-        import React, { useState, useRef } from 'react';
-import { ChevronLeft, CreditCard, Settings } from 'lucide-react';
 
 const FREEHAND_CONFIG = {
     cardBalance: 1000,
@@ -81,7 +79,7 @@ const PAYMENT_METHODS = [
     { id: 'swish', name: 'Swish', icon: '🔄' }
 ];
 
-export default function App() {
+function App() {
     const [workflowType, setWorkflowType] = useState(null);
 
     if (!workflowType) {
