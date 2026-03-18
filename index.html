@@ -31,23 +31,6 @@
         // Use React global variables instead
         const { useState, useRef } = React;
 
-        // Icon components (inline SVGs - replacing lucide-react imports)
-        const CreditCard = ({ size = 24, style = {} }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-            </svg>
-        );
-
-        const Settings = ({ size = 24, style = {} }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6"></path>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M5.93 4.93a10 10 0 0 0 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"></path>
-            </svg>
-        );
-
-
 const FREEHAND_CONFIG = {
     cardBalance: 1000,
     currency: 'SEK',
@@ -171,6 +154,18 @@ function FreehandWorkflow({ onReset }) {
         setScreen('payment-options');
     };
 
+    const handleTopUpFromPurchase = () => {
+        const purchase = parseFloat(purchaseAmount);
+        const shortfall = Math.max(0, purchase - cardBalance);
+        setTopUpAmount(shortfall.toString());
+        setScreen('payment-options');
+    };
+
+    const handleTopUpFromPurchase = () => {
+        if (!selectedDenomination) return;
+        setScreen('payment-options');
+    };
+
     const handlePurchaseAmountNext = () => {
         // Always go directly to code-revealed screen
         setScreen('code-revealed');
@@ -211,7 +206,7 @@ function FreehandWorkflow({ onReset }) {
     const screens = {
         'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUpCard={handleTopUpCard} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'direct-topup-amount': <DirectTopUpAmountScreen config={config} topUpAmount={topUpAmount} setTopUpAmount={setTopUpAmount} onConfirm={handleDirectTopUpConfirm} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />,
-        'enter-purchase-amount': <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'enter-purchase-amount': <EnterPurchaseAmountScreen config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} topUpAmount={topUpAmount} onTopUp={handleTopUpFromPurchase} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen('enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-details': <PaymentDetailsScreen amount={topUpAmount} currency={config.currency} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
@@ -294,7 +289,7 @@ function FixedWorkflow({ onReset }) {
     const screens = {
         'card-details': <CardDetailsScreen config={config} cardBalance={cardBalance} onRevealCode={handleRevealCode} onTopUpCard={handleTopUpCard} onReset={onReset} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'direct-topup-denomination': <DirectTopUpDenominationScreen config={config} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onConfirm={handleDirectTopUpConfirm} onBack={resetFlow} activeTab={activeTab} setActiveTab={setActiveTab} />,
-        'enter-purchase-amount': <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={() => setScreen('payment-options')} activeTab={activeTab} setActiveTab={setActiveTab} />,
+        'enter-purchase-amount': <EnterPurchaseAmountScreenFixed config={config} cardBalance={cardBalance} purchaseAmount={purchaseAmount} setPurchaseAmount={setPurchaseAmount} selectedDenomination={selectedDenomination} onDenominationSelect={handleDenominationSelect} onNext={handlePurchaseAmountNext} onBack={resetFlow} showMoreExpanded={showMoreExpanded} setShowMoreExpanded={setShowMoreExpanded} onPaymentOptions={handleTopUpFromPurchase} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-options': <PaymentOptionsScreen onSelect={handlePaymentMethodSelect} onBack={() => setScreen('enter-purchase-amount')} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-details': <PaymentDetailsScreen amount={selectedDenomination} currency={config.currency} activeTab={activeTab} setActiveTab={setActiveTab} />,
         'payment-processing': <PaymentProcessingScreen activeTab={activeTab} setActiveTab={setActiveTab} />,
