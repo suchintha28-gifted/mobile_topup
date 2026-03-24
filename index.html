@@ -17,7 +17,6 @@
     <script type="text/babel">
         const { useState, useRef } = React;
 
-        // Icon Components
         const CreditCard = ({ size = 24, style = {} }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -220,7 +219,8 @@
                 </div>
             );
         }
-      function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onTopUp, activeTab, setActiveTab }) {
+
+        function EnterPurchaseAmountScreen({ config, cardBalance, purchaseAmount, setPurchaseAmount, onNext, onBack, showMoreExpanded, setShowMoreExpanded, onTopUp, activeTab, setActiveTab }) {
             const purchaseValue = parseFloat(purchaseAmount) || 0;
             const hasShortfall = purchaseValue > cardBalance;
             const shortfall = hasShortfall ? purchaseValue - cardBalance : 0;
@@ -258,7 +258,7 @@
                         )}
                         <div style={{marginBottom: '16px'}}>
                             <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', fontWeight: 500, marginBottom: '4px'}}>Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.</p>
-                            {showMoreExpanded ? (<><p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}><p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.</p></>) : (<button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>..... Show more</button>)}
+                            {showMoreExpanded ? (<p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.</p>) : (<button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>..... Show more</button>)}
                         </div>
                         <div style={{backgroundColor: '#FFF9E6', border: '1px solid #FFD966', borderRadius: '16px', padding: '16px', marginTop: '16px'}}>
                             <div style={{display: 'flex', alignItems: 'flex-start', gap: '8px'}}>
@@ -319,18 +319,15 @@
                         )}
                         <div style={{marginBottom: '16px'}}>
                             <p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', fontWeight: 500, marginBottom: '4px'}}>Enter your purchase amount above to check if your Card balance is sufficient to complete your purchase.</p>
-                            {showMoreExpanded ? (<><p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}><p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.</p></>) : (<button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>..... Show more</button>)}
+                            {showMoreExpanded ? (<p style={{fontSize: '14px', lineHeight: '1.5', color: 'black', marginTop: '12px'}}>Once you filled in the total purchase amount above, you can top-up the Gift Card if the Card balance is lesser than the purchase amount.</p>) : (<button onClick={() => setShowMoreExpanded(true)} style={{fontSize: '14px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px', color: '#666', backgroundColor: 'transparent', border: 'none', padding: 0, cursor: 'pointer'}}>..... Show more</button>)}
                         </div>
                         {hasShortfall && (
                             <div style={{marginBottom: '16px'}}>
-                                <p style={{fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: 'black'}}>Select a top-up amount:</p>
-                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                                <p style={{fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: 'black'}}>Select a top-up amount</p>
+                                <div style={{display: 'flex', flexWrap: 'wrap', gap: '12px'}}>
                                     {availableDenominations.map(amount => (
-                                        <button key={amount} onClick={() => onDenominationSelect(amount)} style={{padding: '8px 12px', borderRadius: '12px', border: `2px solid ${selectedDenomination === amount ? '#5B7FD8' : '#E5E7EB'}`, backgroundColor: selectedDenomination === amount ? '#EEF3FF' : 'white', cursor: 'pointer'}}>
-                                            <div style={{textAlign: 'center'}}>
-                                                <div style={{fontSize: '16px', fontWeight: 'bold', color: 'black'}}>{amount}</div>
-                                                <div style={{fontSize: '12px', color: '#9E9E9E'}}>{config.currency}</div>
-                                            </div>
+                                        <button key={amount} onClick={() => onDenominationSelect(amount)} style={{padding: '12px 20px', borderRadius: '999px', border: 'none', backgroundColor: selectedDenomination === amount ? '#5B7FD8' : '#F5F5F5', color: selectedDenomination === amount ? 'white' : '#999999', cursor: 'pointer', fontSize: '14px', fontWeight: 500}}>
+                                            {config.currency} {amount}
                                         </button>
                                     ))}
                                 </div>
@@ -353,7 +350,6 @@
                 </div>
             );
         }
-
         function DirectTopUpAmountScreen({ config, topUpAmount, setTopUpAmount, onConfirm, onBack, activeTab, setActiveTab }) {
             const inputRef = useRef(null);
             const amount = parseFloat(topUpAmount) || 0;
@@ -589,4 +585,4 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
-</html>  
+</html>
